@@ -204,9 +204,9 @@ opencode-sync login
 
 Enter:
 - **Convex URL**: Your deployment URL (e.g., `https://your-project-123.convex.cloud`)
-- **WorkOS Client ID**: Your client ID (e.g., `client_xxxxx`)
+- **API Key**: Generate in OpenSync Settings page (starts with `osk_`)
 
-Complete authentication in the browser.
+No browser authentication required.
 
 ## Step 10: Test the Integration
 
@@ -223,7 +223,13 @@ Complete authentication in the browser.
 
 ## Troubleshooting
 
-### "Invalid token" errors
+### "Invalid API key" errors (plugin)
+
+1. Verify your API key is valid in OpenSync Settings
+2. Generate a new API key if needed
+3. Run `opencode-sync login` with the new key
+
+### "Invalid token" errors (web UI)
 
 1. Verify `WORKOS_CLIENT_ID` is set correctly in Convex environment variables
 2. Verify `auth.config.ts` has the correct client ID
@@ -252,13 +258,13 @@ Convex handles CORS automatically. If you see CORS errors:
 ### Data Flow
 
 ```
-OpenCode Session
+OpenCode/Claude Code Session
        │
        ▼
-Plugin (JWT Auth)
+Plugin (API Key Auth: osk_*)
        │
        ▼
-Convex HTTP Endpoints
+Convex HTTP Endpoints (/sync/*)
        │
        ├──▶ sessions table
        ├──▶ messages table

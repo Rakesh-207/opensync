@@ -43,7 +43,14 @@ npx convex dev
 
 See [SETUP.md](docs/SETUP.md) for detailed instructions.
 
-### 2. Install a Plugin
+### 2. Get Your API Key
+
+1. Log into your OpenSync dashboard via WorkOS
+2. Go to **Settings**
+3. Click **Generate API Key**
+4. Copy the key (starts with `osk_`)
+
+### 3. Install a Plugin
 
 **For OpenCode:**
 
@@ -51,6 +58,10 @@ See [SETUP.md](docs/SETUP.md) for detailed instructions.
 npm install -g opencode-sync-plugin
 opencode-sync login
 ```
+
+Enter when prompted:
+- **Convex URL**: Your deployment URL (e.g., `https://your-project.convex.cloud`)
+- **API Key**: Your API key from Settings (e.g., `osk_abc123...`)
 
 Then add to your `opencode.json`:
 
@@ -60,24 +71,28 @@ Then add to your `opencode.json`:
 }
 ```
 
-**For Claude Code:**
+**For Claude Code (Coming Soon):**
 
 ```bash
-/plugin install yourusername/claude-code-sync
+claude-code-sync login
 ```
 
-Or configure via `~/.claude-code-sync.json`:
+Enter when prompted:
+- **Convex URL**: Your deployment URL
+- **API Key**: Your API key from Settings
+
+Or configure via `~/.config/claude-code-sync/config.json`:
 
 ```json
 {
-  "convex_url": "https://your-deployment.convex.cloud",
-  "auto_sync": true
+  "convexUrl": "https://your-deployment.convex.cloud",
+  "apiKey": "osk_your_api_key"
 }
 ```
 
-### 3. Start Coding
+### 4. Start Coding
 
-Your sessions sync automatically from either tool.
+Your sessions sync automatically. No browser authentication required for plugins.
 
 ## Features
 
@@ -99,20 +114,30 @@ Your sessions sync automatically from either tool.
 ```
 ┌─────────────────┐     ┌─────────────────┐
 │    OpenCode     │────▶│ opencode-sync   │──┐
-│    (CLI)        │     │    plugin       │  │
-└─────────────────┘     └─────────────────┘  │     ┌─────────────────┐
-                                             ├────▶│   Convex        │
-┌─────────────────┐     ┌─────────────────┐  │     │   (Backend)     │
-│  Claude Code    │────▶│ claude-code-sync│──┘     └─────────────────┘
-│    (CLI)        │     │    plugin       │                │
-└─────────────────┘     └─────────────────┘                │
-                                              ┌────────────┼────────────┐
-                                              ▼            ▼            ▼
-                                       ┌──────────┐ ┌──────────┐ ┌──────────┐
-                                       │  Web UI  │ │ API      │ │ OpenAI   │
-                                       │  (React) │ │ (/api/*) │ │ Embed    │
-                                       └──────────┘ └──────────┘ └──────────┘
+│    (CLI)        │     │  plugin (npm)   │  │  API Key Auth
+└─────────────────┘     └─────────────────┘  │  (osk_*)
+                                             ├────────────────────┐
+┌─────────────────┐     ┌─────────────────┐  │                    │
+│  Claude Code    │────▶│ claude-code-sync│──┘                    ▼
+│    (CLI)        │     │  plugin (py)    │              ┌─────────────────┐
+└─────────────────┘     └─────────────────┘              │   Convex        │
+                                                         │   (Backend)     │
+┌─────────────────┐                                      └─────────────────┘
+│   Web Browser   │────────────────────────────────────────────────┤
+│   (Dashboard)   │  WorkOS JWT Auth                               │
+└─────────────────┘                                                │
+                                              ┌────────────┬───────┴────────┐
+                                              ▼            ▼                ▼
+                                       ┌──────────┐ ┌──────────┐     ┌──────────┐
+                                       │  Web UI  │ │ API      │     │ OpenAI   │
+                                       │  (React) │ │ (/api/*) │     │ Embed    │
+                                       └──────────┘ └──────────┘     └──────────┘
 ```
+
+**Authentication:**
+- **Plugins** use API Key authentication (`osk_*` prefix). No browser required.
+- **Web UI** uses WorkOS OAuth for enterprise authentication.
+- **API Endpoints** accept both API Key and JWT tokens.
 
 ## API Endpoints
 
@@ -161,16 +186,20 @@ opensync/                # This repo - Convex backend + React UI
 
 opencode-sync-plugin/    # Separate repo - npm package for OpenCode
 ├── src/
-│   ├── index.ts         # Plugin hooks
-│   └── cli.ts           # CLI commands
+│   ├── index.ts         # Plugin hooks with API Key auth
+│   └── cli.ts           # CLI commands (login, status, config)
+├── package.json
 └── README.md
 
-claude-code-sync/        # Separate repo - Claude Code plugin
+claude-code-sync/        # Separate repo - Python plugin for Claude Code
 ├── src/
-│   ├── plugin.py        # Plugin hooks
-│   └── config.py        # Configuration
+│   ├── index.ts         # Plugin hooks with API Key auth
+│   └── cli.ts           # CLI commands (login, status, config)
+├── package.json
 └── README.md
 ```
+
+**Note:** Plugins authenticate using API Keys (`osk_*`) generated in the OpenSync Settings page. No WorkOS OAuth flow required for plugins.
 
 ## Documentation
 
@@ -178,7 +207,9 @@ claude-code-sync/        # Separate repo - Claude Code plugin
 - [API Reference](docs/API.md) - API endpoint documentation
 - [OpenCode Plugin](docs/OPENCODE-PLUGIN.md) - OpenCode plugin installation
 - [Claude Code Plugin](docs/CLAUDE-CODE-PLUGIN.md) - Claude Code plugin installation
+- [Plugin Auth PRD](docs/PLUGIN-AUTH-PRD.md) - Plugin authentication specification
 - [Sync for Evals PRD](docs/SYNC-FOR-EVALS-PRD.md) - Eval export feature specification
+- [Features PRD](docs/PRD-FEATURES.md) - Future feature specifications
 - `/docs` route in the web app provides interactive API documentation
 
 ## Tech Stack

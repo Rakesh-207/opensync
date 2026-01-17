@@ -16,9 +16,16 @@ opencode-sync login
 
 Enter when prompted:
 - **Convex URL**: Your deployment URL (e.g., `https://your-project-123.convex.cloud`)
-- **WorkOS Client ID**: Your client ID (e.g., `client_xxxxx`)
+- **API Key**: Your API key from Settings page (starts with `osk_`)
 
-Complete authentication in the browser.
+No browser authentication required.
+
+### Getting Your API Key
+
+1. Log into your OpenSync dashboard
+2. Go to **Settings**
+3. Click **Generate API Key**
+4. Copy the key (starts with `osk_`)
 
 ## Configuration
 
@@ -30,21 +37,20 @@ Add the plugin to your project's `opencode.json`:
 }
 ```
 
+Or add globally at `~/.config/opencode/opencode.json`.
+
 ## Usage
 
 Start an OpenCode session and your sessions sync automatically.
 
-### Check Status
+### CLI Commands
 
-```bash
-opencode-sync status
-```
-
-### Manual Sync
-
-```bash
-opencode-sync sync
-```
+| Command | Description |
+|---------|-------------|
+| `opencode-sync login` | Configure with Convex URL and API Key |
+| `opencode-sync logout` | Clear stored credentials |
+| `opencode-sync status` | Show authentication status |
+| `opencode-sync config` | Show current configuration |
 
 ## What Gets Synced
 
@@ -57,6 +63,23 @@ opencode-sync sync
 | Model info | Which model was used |
 | Cost | Estimated cost per session |
 
+## Configuration Storage
+
+Credentials are stored at:
+
+```
+~/.config/opencode-sync/
+  config.json       # Convex URL, API Key
+```
+
+## URL Format
+
+The plugin accepts both URL formats:
+- `https://your-project.convex.cloud` (dashboard URL)
+- `https://your-project.convex.site` (HTTP endpoint URL)
+
+The plugin automatically normalizes to `.site` for API calls.
+
 ## Troubleshooting
 
 ### Plugin not syncing
@@ -65,11 +88,11 @@ opencode-sync sync
 2. Check the plugin is in `opencode.json`
 3. Check Convex dashboard logs for errors
 
-### "Invalid token" errors
+### "Invalid API key" errors
 
-1. Re-authenticate: `opencode-sync login`
-2. Verify your Convex URL is correct
-3. Check WorkOS Client ID matches your deployment
+1. Go to OpenSync Settings
+2. Generate a new API key
+3. Run `opencode-sync login` with the new key
 
 ### Sessions not appearing in dashboard
 
@@ -81,3 +104,4 @@ opencode-sync sync
 
 - [OpenSync Setup Guide](./SETUP.md) - Deploy your own OpenSync instance
 - [API Reference](./API.md) - Access your sessions programmatically
+- [Plugin Auth PRD](./PLUGIN-AUTH-PRD.md) - Authentication specification

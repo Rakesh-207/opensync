@@ -77,8 +77,9 @@ Documentation files.
 |------|-------------|
 | `SETUP.md` | Full deployment and configuration guide |
 | `API.md` | API endpoint reference with examples |
-| `OPENCODE-PLUGIN.md` | OpenCode plugin installation and usage |
-| `CLAUDE-CODE-PLUGIN.md` | Claude Code plugin installation and hooks |
+| `OPENCODE-PLUGIN.md` | OpenCode plugin installation and usage (API Key auth) |
+| `CLAUDE-CODE-PLUGIN.md` | Claude Code plugin installation and hooks (API Key auth) |
+| `PLUGIN-AUTH-PRD.md` | Plugin authentication specification (API Key vs WorkOS OAuth) |
 | `PRD-FEATURES.md` | Product requirements: Eval Suite, Marketplace, Context Library, Analytics |
 | `SYNC-FOR-EVALS-PRD.md` | Detailed PRD for eval export system with DeepEval/OpenAI Evals support |
 | `workosfix.md` | WorkOS troubleshooting notes |

@@ -29,14 +29,20 @@ None currently.
 
 ### High Priority (Plugins)
 
+**Authentication:** All plugins use API Key auth (`osk_*` prefix). See [PLUGIN-AUTH-PRD.md](docs/PLUGIN-AUTH-PRD.md).
+
 - [ ] opencode-sync-plugin (npm package for OpenCode CLI)
+  - [ ] API Key authentication (no browser OAuth)
   - [ ] Session lifecycle hooks
-  - [ ] CLI commands (login, status, sync)
-  - [ ] Config file support
-- [ ] claude-code-sync plugin (Python plugin for Claude Code)
+  - [ ] CLI commands (login, logout, status, config)
+  - [ ] Config file (~/.config/opencode-sync/config.json)
+  - [ ] URL normalization (.cloud to .site)
+- [ ] claude-code-sync plugin (npm package for Claude Code)
+  - [ ] API Key authentication (no browser OAuth)
   - [ ] Event hooks (SessionStart, UserPromptSubmit, PostToolUse, SessionEnd)
-  - [ ] Config file (~/.claude-code-sync.json)
-  - [ ] Slash commands (/sync-status, /sync-now)
+  - [ ] CLI commands (login, logout, status, config)
+  - [ ] Config file (~/.config/claude-code-sync/config.json)
+  - [ ] URL normalization (.cloud to .site)
 - [ ] Add source field to sessions schema (opencode vs claude-code)
 
 ### High Priority (Core)
@@ -96,17 +102,19 @@ Deferred. See [PRD-FEATURES.md](docs/PRD-FEATURES.md).
 
 ## Plugin Repos
 
-| Repo | Purpose | Status |
-|------|---------|--------|
-| opencode-sync-plugin | npm package for OpenCode CLI | Not started |
-| claude-code-sync | Python plugin for Claude Code | Not started |
+| Repo | Purpose | Language | Auth | Status |
+|------|---------|----------|------|--------|
+| opencode-sync-plugin | npm package for OpenCode CLI | TypeScript | API Key (osk_*) | Not started |
+| claude-code-sync | npm package for Claude Code | TypeScript | API Key (osk_*) | Not started |
 
 ## Notes
 
 - Plugins are separate repos from this backend
-- OpenCode plugin uses JavaScript/TypeScript
-- Claude Code plugin uses Python with uv
-- Schema will need source field to distinguish session origins
+- Both plugins use TypeScript/JavaScript (npm packages)
+- Plugins authenticate with API Keys (`osk_*`), not WorkOS OAuth
+- Web UI continues to use WorkOS AuthKit for browser authentication
+- Plugins accept both `.convex.cloud` and `.convex.site` URLs, normalize to `.site` for API calls
+- Schema will need source field to distinguish session origins (opencode vs claude-code)
 - Eval export feature targets DeepEval, OpenAI Evals, and Promptfoo frameworks
 - Marketplace payment uses Convex Stripe component (future)
-- All new features should follow existing patterns in convex/ and src/
+- See [PLUGIN-AUTH-PRD.md](docs/PLUGIN-AUTH-PRD.md) for full plugin authentication specification

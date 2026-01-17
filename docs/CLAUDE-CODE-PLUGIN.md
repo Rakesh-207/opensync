@@ -2,31 +2,51 @@
 
 Sync your Claude Code sessions to the OpenSync dashboard. Track coding sessions, analyze tool usage, and monitor token consumption across projects.
 
+**Status:** Coming Soon
+
 ## Installation
 
-### From the marketplace
-
 ```bash
-/plugin install yourusername/claude-code-sync
+npm install -g claude-code-sync
 ```
 
-### During development
+Or from the Claude Code marketplace (when available):
 
 ```bash
-claude --plugin-dir /path/to/claude-code-sync
+/plugin install claude-code-sync
 ```
 
-## Configuration
+## Authentication
 
-Create a config file at `~/.claude-code-sync.json`:
+All plugins use **API Key authentication**. No browser OAuth flow required.
+
+### Step 1: Get Your API Key
+
+1. Log into your OpenSync dashboard
+2. Go to **Settings**
+3. Click **Generate API Key**
+4. Copy the key (starts with `osk_`)
+
+### Step 2: Configure the Plugin
+
+```bash
+claude-code-sync login
+```
+
+Enter when prompted:
+- **Convex URL**: Your deployment URL (e.g., `https://your-project.convex.cloud`)
+- **API Key**: Your API key from Settings (e.g., `osk_abc123...`)
+
+No browser authentication required.
+
+### Configuration File
+
+Credentials are stored at `~/.config/claude-code-sync/config.json`:
 
 ```json
 {
-  "convex_url": "https://your-deployment.convex.cloud",
-  "api_key": "optional-api-key",
-  "auto_sync": true,
-  "sync_tool_calls": true,
-  "sync_thinking": false
+  "convexUrl": "https://your-deployment.convex.cloud",
+  "apiKey": "osk_your_api_key"
 }
 ```
 
@@ -34,31 +54,37 @@ Or use environment variables:
 
 ```bash
 export CLAUDE_SYNC_CONVEX_URL="https://your-deployment.convex.cloud"
-export CLAUDE_SYNC_API_KEY="optional-api-key"
-export CLAUDE_SYNC_AUTO="true"
+export CLAUDE_SYNC_API_KEY="osk_your_api_key"
 ```
 
 ### Configuration Options
 
 | Option | Type | Default | Description |
 |--------|------|---------|-------------|
-| `convex_url` | string | required | Your Convex deployment URL |
-| `api_key` | string | optional | API key for authentication |
-| `auto_sync` | boolean | `true` | Automatically sync when sessions end |
-| `sync_tool_calls` | boolean | `true` | Include tool call details |
-| `sync_thinking` | boolean | `false` | Include thinking/reasoning traces |
+| `convexUrl` | string | required | Your Convex deployment URL (.cloud or .site) |
+| `apiKey` | string | required | API key from OpenSync Settings (osk_*) |
+| `autoSync` | boolean | `true` | Automatically sync when sessions end |
+| `syncToolCalls` | boolean | `true` | Include tool call details |
+| `syncThinking` | boolean | `false` | Include thinking/reasoning traces |
 
-## Commands
+## CLI Commands
+
+| Command | Description |
+|---------|-------------|
+| `claude-code-sync login` | Configure with Convex URL and API Key |
+| `claude-code-sync logout` | Clear stored credentials |
+| `claude-code-sync status` | Show authentication status |
+| `claude-code-sync config` | Show current configuration |
 
 ### Check sync status
 
-```
-/claude-code-sync:sync-status
+```bash
+claude-code-sync status
 ```
 
 Shows your current configuration and tests the connection to your Convex backend.
 
-### Manual sync
+### Manual sync (via Claude Code command)
 
 ```
 /claude-code-sync:sync-now
@@ -165,31 +191,42 @@ Add source filtering to the sessions list so users can filter between OpenCode a
 
 ### "No Convex URL configured"
 
-Create the config file at `~/.claude-code-sync.json` with your deployment URL.
+Run `claude-code-sync login` to configure your Convex URL and API Key.
+
+### "Invalid API key" errors
+
+1. Go to OpenSync Settings
+2. Generate a new API key
+3. Run `claude-code-sync login` with the new key
 
 ### "Connection failed"
 
 Check that:
 1. Your Convex deployment is running
-2. The URL is correct (should end in `.convex.cloud`)
-3. Your API key is valid (if using authentication)
+2. The URL is correct (can be `.convex.cloud` or `.convex.site`)
+3. Your API key is valid (starts with `osk_`)
 
 ### Sync not working
 
-Run `/claude-code-sync:sync-status` to diagnose issues.
+Run `claude-code-sync status` to diagnose issues.
 
-### Hook not firing
+### Sessions not appearing in dashboard
 
-Check that the plugin is loaded:
+1. Wait a few seconds for sync to complete
+2. Refresh the OpenSync dashboard
+3. Check your user account matches between plugin and dashboard
 
-```
-/plugins
-```
+## URL Format
 
-You should see `claude-code-sync` in the list.
+The plugin accepts both URL formats:
+- `https://your-project.convex.cloud` (dashboard URL)
+- `https://your-project.convex.site` (HTTP endpoint URL)
+
+The plugin automatically normalizes to `.site` for API calls.
 
 ## Related
 
 - [OpenSync Setup Guide](./SETUP.md) - Deploy your own OpenSync instance
 - [OpenCode Plugin](./OPENCODE-PLUGIN.md) - Sync OpenCode sessions
+- [Plugin Auth PRD](./PLUGIN-AUTH-PRD.md) - Authentication specification
 - [API Reference](./API.md) - Access your sessions programmatically

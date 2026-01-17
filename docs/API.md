@@ -6,7 +6,7 @@ Secure API for accessing your OpenCode sessions programmatically.
 
 All API endpoints require authentication via Bearer token.
 
-### Option 1: API Key (Recommended for external apps)
+### Option 1: API Key (Recommended for plugins and external apps)
 
 Generate an API key in Settings. API keys start with `osk_`.
 
@@ -15,9 +15,14 @@ curl "https://your-project.convex.site/api/sessions" \
   -H "Authorization: Bearer osk_your_api_key"
 ```
 
-### Option 2: JWT Token (For authenticated web clients)
+This is the authentication method used by:
+- opencode-sync-plugin
+- claude-code-sync plugin
+- Custom integrations and scripts
 
-Use the JWT token from WorkOS authentication.
+### Option 2: JWT Token (For web dashboard only)
+
+The web dashboard uses WorkOS JWT tokens automatically.
 
 ```bash
 curl "https://your-project.convex.site/api/sessions" \
@@ -32,7 +37,7 @@ Your API base URL is your Convex site URL:
 https://your-project-123.convex.site
 ```
 
-Note: This is different from your Convex cloud URL (`.cloud` vs `.site`).
+Note: Plugins accept both `.convex.cloud` (dashboard URL) and `.convex.site` (HTTP endpoint URL) formats and normalize automatically.
 
 ---
 

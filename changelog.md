@@ -4,6 +4,24 @@ All notable changes to OpenSync.
 
 Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [Unreleased]
+
+### Changed
+
+- Updated plugin authentication to use API Keys (`osk_*`) instead of WorkOS OAuth
+- Both opencode-sync-plugin and claude-code-sync now use simple CLI login with Convex URL and API Key
+- Plugins accept both `.convex.cloud` and `.convex.site` URL formats
+- No browser authentication required for plugins
+
+### Documentation
+
+- Added PLUGIN-AUTH-PRD.md with full authentication specification
+- Updated README.md with new plugin auth flow and architecture diagram
+- Updated OPENCODE-PLUGIN.md with API Key authentication instructions
+- Updated CLAUDE-CODE-PLUGIN.md with API Key authentication and CLI commands
+- Updated SETUP.md Step 9 and data flow diagram for API Key auth
+- Updated files.md and task.md with plugin auth references
+
 ## [0.1.0] - 2026-01-17
 
 Initial release.
@@ -59,11 +77,12 @@ Initial release.
 
 ## Planned Features
 
-See [PRD-FEATURES.md](docs/PRD-FEATURES.md) and [SYNC-FOR-EVALS-PRD.md](docs/SYNC-FOR-EVALS-PRD.md) for specifications.
+See [PRD-FEATURES.md](docs/PRD-FEATURES.md), [SYNC-FOR-EVALS-PRD.md](docs/SYNC-FOR-EVALS-PRD.md), and [PLUGIN-AUTH-PRD.md](docs/PLUGIN-AUTH-PRD.md) for specifications.
 
 ### Plugins (High Priority)
-- opencode-sync-plugin: npm package for OpenCode CLI
-- claude-code-sync: Python plugin for Claude Code
+- opencode-sync-plugin: npm package for OpenCode CLI (API Key auth)
+- claude-code-sync: npm package for Claude Code (API Key auth)
+- Both plugins use simple CLI login with Convex URL and API Key
 
 ### Sync for Evals
 - Mark sessions as eval-ready with notes and tags
