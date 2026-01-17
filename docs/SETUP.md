@@ -195,6 +195,8 @@ https://your-domain.com/callback
 
 ## Step 9: Install the Plugin
 
+Published on npm: [opencode-sync-plugin](https://www.npmjs.com/package/opencode-sync-plugin)
+
 In a new terminal (as a user of your deployment):
 
 ```bash

@@ -10,7 +10,7 @@ alwaysApply: true
   - When creating Convex mutations, always patch directly without reading first, use indexed queries for ownership checks instead of `ctx.db.get()`, make mutations idempotent with early returns, use timestamp-based ordering for new items, and use `Promise.all()` for parallel independent operations to avoid write conflicts.
 
 - Do you understand, what I’m asking? Never assume anything on your own, if anything isn’t clear, please ask questions and clarify your doubts.
-- add a one line gitcommit when adding entries to the changelog.md file.
+- add a one line gitcommit when adding entries to the changelog.
 - reference @dev2.mdc @help.mdc @gitruels.mdc @files.md if needed
 - do not use use emoji or emojis in the readme or app unless instructed
 - always create type-safe code

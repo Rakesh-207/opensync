@@ -6,6 +6,10 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Added
+
+- Published opencode-sync-plugin to npm: [npmjs.com/package/opencode-sync-plugin](https://www.npmjs.com/package/opencode-sync-plugin)
+
 ### Changed
 
 - Updated plugin authentication to use API Keys (`osk_*`) instead of WorkOS OAuth
@@ -79,9 +83,9 @@ Initial release.
 
 See [PRD-FEATURES.md](docs/PRD-FEATURES.md), [SYNC-FOR-EVALS-PRD.md](docs/SYNC-FOR-EVALS-PRD.md), and [PLUGIN-AUTH-PRD.md](docs/PLUGIN-AUTH-PRD.md) for specifications.
 
-### Plugins (High Priority)
-- opencode-sync-plugin: npm package for OpenCode CLI (API Key auth)
-- claude-code-sync: npm package for Claude Code (API Key auth)
+### Plugins
+- opencode-sync-plugin: **Published** at [npmjs.com/package/opencode-sync-plugin](https://www.npmjs.com/package/opencode-sync-plugin)
+- claude-code-sync: npm package for Claude Code (API Key auth) - coming soon
 - Both plugins use simple CLI login with Convex URL and API Key
 
 ### Sync for Evals

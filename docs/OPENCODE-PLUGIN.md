@@ -2,6 +2,8 @@
 
 Sync your OpenCode sessions to the OpenSync dashboard.
 
+Published on npm: [opencode-sync-plugin](https://www.npmjs.com/package/opencode-sync-plugin)
+
 ## Installation
 
 ```bash

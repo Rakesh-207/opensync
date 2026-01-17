@@ -20,6 +20,7 @@ OpenSync supports two AI coding tools: **OpenCode** and **Claude Code**.
 - [x] Interactive docs page
 - [x] Markdown export
 - [x] README and documentation
+- [x] opencode-sync-plugin published to npm ([npmjs.com/package/opencode-sync-plugin](https://www.npmjs.com/package/opencode-sync-plugin))
 
 ## In Progress
 
@@ -31,12 +32,12 @@ None currently.
 
 **Authentication:** All plugins use API Key auth (`osk_*` prefix). See [PLUGIN-AUTH-PRD.md](docs/PLUGIN-AUTH-PRD.md).
 
-- [ ] opencode-sync-plugin (npm package for OpenCode CLI)
-  - [ ] API Key authentication (no browser OAuth)
-  - [ ] Session lifecycle hooks
-  - [ ] CLI commands (login, logout, status, config)
-  - [ ] Config file (~/.config/opencode-sync/config.json)
-  - [ ] URL normalization (.cloud to .site)
+- [x] opencode-sync-plugin (npm package for OpenCode CLI) - **Published:** [npmjs.com/package/opencode-sync-plugin](https://www.npmjs.com/package/opencode-sync-plugin)
+  - [x] API Key authentication (no browser OAuth)
+  - [x] Session lifecycle hooks
+  - [x] CLI commands (login, logout, status, config)
+  - [x] Config file (~/.config/opencode-sync/config.json)
+  - [x] URL normalization (.cloud to .site)
 - [ ] claude-code-sync plugin (npm package for Claude Code)
   - [ ] API Key authentication (no browser OAuth)
   - [ ] Event hooks (SessionStart, UserPromptSubmit, PostToolUse, SessionEnd)
@@ -104,7 +105,7 @@ Deferred. See [PRD-FEATURES.md](docs/PRD-FEATURES.md).
 
 | Repo | Purpose | Language | Auth | Status |
 |------|---------|----------|------|--------|
-| opencode-sync-plugin | npm package for OpenCode CLI | TypeScript | API Key (osk_*) | Not started |
+| [opencode-sync-plugin](https://www.npmjs.com/package/opencode-sync-plugin) | npm package for OpenCode CLI | TypeScript | API Key (osk_*) | Published |
 | claude-code-sync | npm package for Claude Code | TypeScript | API Key (osk_*) | Not started |
 
 ## Notes

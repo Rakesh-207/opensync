@@ -154,6 +154,8 @@ Update `docs/SETUP.md` Step 9 to reflect API Key authentication:
 ```markdown
 ## Step 9: Install the Plugin
 
+Published on npm: [opencode-sync-plugin](https://www.npmjs.com/package/opencode-sync-plugin)
+
 ```bash
 npm install -g opencode-sync-plugin
 opencode-sync login

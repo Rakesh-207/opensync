@@ -52,7 +52,7 @@ See [SETUP.md](docs/SETUP.md) for detailed instructions.
 
 ### 3. Install a Plugin
 
-**For OpenCode:**
+**For OpenCode:** ([npm](https://www.npmjs.com/package/opencode-sync-plugin))
 
 ```bash
 npm install -g opencode-sync-plugin
@@ -184,7 +184,7 @@ opensync/                # This repo - Convex backend + React UI
 │   └── lib/             # Auth utilities
 └── docs/                # Documentation
 
-opencode-sync-plugin/    # Separate repo - npm package for OpenCode
+opencode-sync-plugin/    # Published: npmjs.com/package/opencode-sync-plugin
 ├── src/
 │   ├── index.ts         # Plugin hooks with API Key auth
 │   └── cli.ts           # CLI commands (login, status, config)
