@@ -105,7 +105,7 @@ export const searchMessages = query({
       _creationTime: v.number(),
       sessionId: v.id("sessions"),
       externalId: v.string(),
-      role: v.union(v.literal("user"), v.literal("assistant"), v.literal("system")),
+      role: v.union(v.literal("user"), v.literal("assistant"), v.literal("system"), v.literal("unknown")),
       textContent: v.optional(v.string()),
       model: v.optional(v.string()),
       promptTokens: v.optional(v.number()),

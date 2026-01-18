@@ -24,6 +24,10 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Added WorkOS auth state detection on login page (shows sign out if logged in but sync pending)
 - Enhanced netlify.toml with security headers and asset caching
 
+### Documentation
+
+- Added NETLIFY-WORKOS-DEPLOYMENT.md with full deployment troubleshooting guide
+
 ### Changed
 
 - Updated plugin authentication to use API Keys (`osk_*`) instead of WorkOS OAuth

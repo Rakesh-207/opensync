@@ -8,7 +8,7 @@ export const upsert = internalMutation({
     userId: v.id("users"),
     sessionExternalId: v.string(),
     externalId: v.string(),
-    role: v.union(v.literal("user"), v.literal("assistant"), v.literal("system")),
+    role: v.union(v.literal("user"), v.literal("assistant"), v.literal("system"), v.literal("unknown")),
     textContent: v.optional(v.string()),
     model: v.optional(v.string()),
     promptTokens: v.optional(v.number()),

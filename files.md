@@ -85,6 +85,7 @@ Documentation files.
 | `PRD-FEATURES.md` | Product requirements: Eval Suite, Marketplace, Context Library, Analytics |
 | `SYNC-FOR-EVALS-PRD.md` | Detailed PRD for eval export system with DeepEval/OpenAI Evals support |
 | `workosfix.md` | WorkOS troubleshooting notes |
+| `NETLIFY-WORKOS-DEPLOYMENT.md` | Deployment guide for Netlify, WorkOS, and Convex integration |
 
 ## public/
 
