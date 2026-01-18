@@ -4,6 +4,11 @@ Current development tasks and feature backlog for OpenSync.
 
 OpenSync supports two AI coding tools: **OpenCode** and **Claude Code**.
 
+- fix filter ui
+- workos login fix
+- add claude code plugin
+- add semantic search
+
 ## Completed
 
 - [x] Database schema design (users, sessions, messages, parts, embeddings)
@@ -34,10 +39,15 @@ OpenSync supports two AI coding tools: **OpenCode** and **Claude Code**.
 - [x] Mobile-responsive dashboard layout
 - [x] Tan mode theme toggle for Dashboard, Settings, and Docs pages (dark mode default)
 - [x] Theme switcher icon in header with localStorage persistence
+- [x] Added Netlify logo to login page footer
+- [x] Added close icon (X) to session detail panel for desktop
+- [x] Hidden scrollbar on sessions list while keeping scroll functionality
+- [x] Fixed Tokens/Cost/Duration table header alignment
+- [x] Fixed markdown download with sanitized filenames and loading state
 
 ## In Progress
 
-None currently.
+- [ ] Alt sessions view (waiting for design image)
 
 ## Backlog
 

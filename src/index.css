@@ -283,3 +283,13 @@ th {
 .divider-vertical {
   @apply w-px bg-zinc-800/50 mx-4;
 }
+
+/* Hide scrollbar but keep scroll functionality */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}

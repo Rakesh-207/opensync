@@ -44,7 +44,7 @@ React frontend application.
 |------|-------------|
 | `main.tsx` | App entry point with providers (Convex, AuthKit, Router) |
 | `App.tsx` | Route definitions and protected route wrapper |
-| `index.css` | Global styles, Tailwind imports, dark theme tokens, chart utilities |
+| `index.css` | Global styles, Tailwind imports, dark theme tokens, chart utilities, scrollbar-hide utility |
 | `vite-env.d.ts` | Vite client type declarations for import.meta.env |
 
 ### src/pages/
@@ -102,6 +102,7 @@ Static assets.
 | `favicon.svg` | SVG favicon |
 | `convex.svg` | Convex logo |
 | `workos.svg` | WorkOS logo |
+| `netlify-logo.svg` | Netlify logo |
 
 ## .cursor/rules/
 

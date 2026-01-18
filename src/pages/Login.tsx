@@ -278,6 +278,20 @@ export function LoginPage() {
                   className="h-5 w-auto invert"
                 />
               </a>
+              <span className="text-zinc-500">+</span>
+              <a
+                href="https://netlify.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="transition-opacity hover:opacity-80"
+                title="Netlify"
+              >
+                <img
+                  src="/netlify-logo.svg"
+                  alt="Netlify"
+                  className="h-6 w-auto"
+                />
+              </a>
             </div>
           </div>
           {/* Debug info - shows env var status */}

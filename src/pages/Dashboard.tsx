@@ -31,6 +31,7 @@ import {
   Bot,
   Sun,
   Moon,
+  X,
 } from "lucide-react";
 
 // View modes
@@ -558,15 +559,26 @@ function SessionsView({
 
   const handleDownload = () => {
     if (markdown && selectedSession?.session) {
+      // Sanitize filename - remove special characters that might cause issues
+      const safeTitle = (selectedSession.session.title || "session")
+        .replace(/[/\\?%*:|"<>]/g, "-")
+        .replace(/\s+/g, "_")
+        .slice(0, 100);
+      const timestamp = new Date().toISOString().split("T")[0];
+      const filename = `${safeTitle}_${timestamp}.md`;
+      
       const blob = new Blob([markdown], { type: "text/markdown" });
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = `${selectedSession.session.title || "session"}.md`;
+      a.download = filename;
       a.click();
       URL.revokeObjectURL(url);
     }
   };
+  
+  // Check if markdown is loading
+  const isMarkdownLoading = selectedSession?.session?._id && markdown === undefined;
 
   return (
     <div className="h-full flex flex-col lg:flex-row">
@@ -644,14 +656,14 @@ function SessionsView({
         {/* Sort header */}
         <div className={cn("grid grid-cols-12 gap-2 px-4 py-2 border-b text-[10px] uppercase tracking-wider", t.borderLight, t.textDim)}>
           <div className="col-span-5">Title</div>
-          <SortHeader label="Tokens" field="totalTokens" current={sortField} order={sortOrder} onChange={onSortChange} className="col-span-2 text-right" theme={theme} />
-          <SortHeader label="Cost" field="cost" current={sortField} order={sortOrder} onChange={onSortChange} className="col-span-2 text-right" theme={theme} />
-          <SortHeader label="Duration" field="durationMs" current={sortField} order={sortOrder} onChange={onSortChange} className="col-span-2 text-right" theme={theme} />
+          <SortHeader label="Tokens" field="totalTokens" current={sortField} order={sortOrder} onChange={onSortChange} className="col-span-2" alignRight theme={theme} />
+          <SortHeader label="Cost" field="cost" current={sortField} order={sortOrder} onChange={onSortChange} className="col-span-2" alignRight theme={theme} />
+          <SortHeader label="Duration" field="durationMs" current={sortField} order={sortOrder} onChange={onSortChange} className="col-span-2" alignRight theme={theme} />
           <div className="col-span-1" />
         </div>
 
         {/* Sessions */}
-        <div className="flex-1 overflow-y-auto">
+        <div className="flex-1 overflow-y-auto scrollbar-hide">
           {sessions.map((session) => (
             <SessionTableRow
               key={session._id}
@@ -705,10 +717,15 @@ function SessionsView({
               </button>
               <button
                 onClick={handleDownload}
-                className={cn("p-1.5 rounded transition-colors", t.textSubtle, t.bgHover)}
-                title="Download"
+                disabled={isMarkdownLoading || !markdown}
+                className={cn(
+                  "p-1.5 rounded transition-colors",
+                  isMarkdownLoading || !markdown ? "opacity-50 cursor-not-allowed" : "",
+                  t.textSubtle, t.bgHover
+                )}
+                title={isMarkdownLoading ? "Loading..." : "Download as Markdown"}
               >
-                <Download className="h-3.5 w-3.5" />
+                <Download className={cn("h-3.5 w-3.5", isMarkdownLoading && "animate-pulse")} />
               </button>
               <button
                 onClick={() => setVisibility({ sessionId: selectedSession.session._id, isPublic: !selectedSession.session.isPublic })}
@@ -742,6 +759,14 @@ function SessionsView({
                 title="Delete"
               >
                 <Trash2 className="h-3.5 w-3.5" />
+              </button>
+              {/* Close panel button - desktop */}
+              <button
+                onClick={() => onSelectSession(null)}
+                className={cn("hidden lg:flex p-1.5 rounded transition-colors ml-2", t.textSubtle, t.bgHover)}
+                title="Close panel"
+              >
+                <X className="h-3.5 w-3.5" />
               </button>
             </div>
           </div>
@@ -1036,6 +1061,7 @@ function SortHeader({
   order,
   onChange,
   className,
+  alignRight,
   theme,
 }: {
   label: string;
@@ -1044,20 +1070,23 @@ function SortHeader({
   order: SortOrder;
   onChange: (field: SortField) => void;
   className?: string;
+  alignRight?: boolean;
   theme: "dark" | "tan";
 }) {
   const t = getThemeClasses(theme);
   const isActive = current === field;
   return (
-    <button
-      onClick={() => onChange(field)}
-      className={cn("flex items-center gap-1 font-normal transition-colors", t.textMuted, className)}
-    >
-      {label}
-      {isActive && (
-        <ChevronDown className={cn("h-3 w-3", order === "asc" && "rotate-180")} />
-      )}
-    </button>
+    <div className={cn(className, alignRight && "flex justify-end")}>
+      <button
+        onClick={() => onChange(field)}
+        className={cn("flex items-center gap-1 font-normal transition-colors", t.textMuted)}
+      >
+        {label}
+        {isActive && (
+          <ChevronDown className={cn("h-3 w-3", order === "asc" && "rotate-180")} />
+        )}
+      </button>
+    </div>
   );
 }
 

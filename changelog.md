@@ -8,6 +8,15 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Added
 
+- Netlify logo added to login page footer alongside Convex and WorkOS logos
+- Close icon (X) button to session detail panel header for desktop users
+- Hidden scrollbar CSS utility class for cleaner UI while maintaining scroll functionality
+
+### Fixed
+
+- Fixed Tokens/Cost/Duration table header alignment in sessions view
+- Fixed markdown download with sanitized filenames and date timestamps
+- Added loading state to download button when markdown is being fetched
 - Tan mode theme toggle for Dashboard, Settings, and Docs pages (dark mode remains default)
 - Theme switcher icon in header to toggle between dark and tan modes
 - Theme persistence via localStorage
