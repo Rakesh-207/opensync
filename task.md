@@ -70,6 +70,7 @@ OpenSync supports two AI coding tools: **OpenCode** and **Claude Code**.
 - [x] ConfirmModal component for themed confirmation dialogs
 - [x] Session delete confirmation modal (replaces browser confirm())
 - [x] Fixed StackedBarChart height rendering for proper bar display
+- [x] Date range selector in Usage Overview (7/14/30/60/90 days)
 
 ## In Progress
 

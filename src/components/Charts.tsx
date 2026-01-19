@@ -667,11 +667,21 @@ export function ConsumptionBreakdown({
   const [selectedProject, setSelectedProject] = useState<string | undefined>();
   const [selectedModel, setSelectedModel] = useState<string | undefined>();
   const [chartType, setChartType] = useState<"tokens" | "cost">("tokens");
+  const [dateRangeDays, setDateRangeDays] = useState<number>(30);
 
   // Color palette for stacked bars
   const colors = isDark
     ? ["#3b82f6", "#22c55e", "#f59e0b", "#ef4444", "#8b5cf6", "#06b6d4", "#ec4899", "#84cc16"]
     : ["#EB5601", "#8b7355", "#d14a01", "#6b6b6b", "#a67c52", "#4a4a4a", "#c9744a", "#5c5c5c"];
+
+  // Filter daily stats by selected date range
+  const filteredDailyStats = useMemo(() => {
+    if (dailyStats.length === 0) return [];
+    const cutoffDate = new Date();
+    cutoffDate.setDate(cutoffDate.getDate() - dateRangeDays);
+    const cutoffStr = cutoffDate.toISOString().split("T")[0];
+    return dailyStats.filter((d) => d.date >= cutoffStr);
+  }, [dailyStats, dateRangeDays]);
 
   // Filter model/project stats based on selection
   const filteredModelStats = useMemo(() => {
@@ -729,12 +739,12 @@ export function ConsumptionBreakdown({
 
   // Process data based on view mode
   const processedData = useMemo(() => {
-    if (dailyStats.length === 0) return [];
+    if (filteredDailyStats.length === 0) return [];
 
     // Group by period
-    const grouped: Record<string, typeof dailyStats> = {};
+    const grouped: Record<string, typeof filteredDailyStats> = {};
     
-    dailyStats.forEach((d) => {
+    filteredDailyStats.forEach((d) => {
       let key = d.date;
       if (viewMode === "weekly") {
         const date = new Date(d.date);
@@ -797,7 +807,7 @@ export function ConsumptionBreakdown({
     }
 
     return aggregated;
-  }, [dailyStats, viewMode, isCumulative]);
+  }, [filteredDailyStats, viewMode, isCumulative]);
 
   // Format period label
   const formatPeriodLabel = (period: string) => {
@@ -852,14 +862,23 @@ export function ConsumptionBreakdown({
     }));
   }, [processedData, filteredModelStats, filteredProjectStats, selectedProject, chartType, filteredSummary, summaryStats, colors, isDark]);
 
-  // Date range display
+  // Date range display based on filtered data
   const dateRange = useMemo(() => {
-    if (dailyStats.length === 0) return "No data";
-    const dates = dailyStats.map((d) => d.date).sort();
+    if (filteredDailyStats.length === 0) return "No data";
+    const dates = filteredDailyStats.map((d) => d.date).sort();
     const start = new Date(dates[0]);
     const end = new Date(dates[dates.length - 1]);
-    return `${start.toLocaleDateString("en", { month: "short", day: "numeric", year: "2-digit" })} - ${end.toLocaleDateString("en", { month: "short", day: "numeric", year: "2-digit" })}`;
-  }, [dailyStats]);
+    return `${start.toLocaleDateString("en", { month: "short", day: "numeric" })} - ${end.toLocaleDateString("en", { month: "short", day: "numeric" })}`;
+  }, [filteredDailyStats]);
+
+  // Date range options
+  const dateRangeOptions = [
+    { value: 7, label: "Last 7 days" },
+    { value: 14, label: "Last 14 days" },
+    { value: 30, label: "Last 30 days" },
+    { value: 60, label: "Last 60 days" },
+    { value: 90, label: "Last 90 days" },
+  ];
 
   // Calculate usage metrics using filtered summary
   const includedCredit = 20.0;
@@ -884,19 +903,24 @@ export function ConsumptionBreakdown({
           </h3>
           
           <div className="flex items-center gap-3 flex-wrap">
-            {/* Date range */}
-            <div className={cn(
-              "flex items-center gap-2 px-3 py-1.5 rounded-md border text-xs",
-              isDark ? "bg-zinc-800/50 border-zinc-700 text-zinc-300" : "bg-[#ebe9e6] border-[#e6e4e1] text-[#1a1a1a]"
-            )}>
-              <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
-                <line x1="16" y1="2" x2="16" y2="6" />
-                <line x1="8" y1="2" x2="8" y2="6" />
-                <line x1="3" y1="10" x2="21" y2="10" />
-              </svg>
+            {/* Date range selector */}
+            <select
+              value={dateRangeDays}
+              onChange={(e) => setDateRangeDays(Number(e.target.value))}
+              className={cn(
+                "text-xs rounded-md px-3 py-1.5 border focus:outline-none",
+                isDark ? "bg-zinc-800/50 border-zinc-700 text-zinc-300" : "bg-[#ebe9e6] border-[#e6e4e1] text-[#1a1a1a]"
+              )}
+            >
+              {dateRangeOptions.map((opt) => (
+                <option key={opt.value} value={opt.value}>{opt.label}</option>
+              ))}
+            </select>
+            
+            {/* Date range display */}
+            <span className={cn("text-xs", isDark ? "text-zinc-500" : "text-[#8b7355]")}>
               {dateRange}
-            </div>
+            </span>
             
             {/* Project filter */}
             <select

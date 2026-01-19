@@ -239,6 +239,40 @@ claude-code-sync --version
 claude-code-sync -V
 ```
 
+### synctest
+
+Test connectivity and create a test session to verify the full sync pipeline works.
+
+```bash
+claude-code-sync synctest
+```
+
+**What it does:**
+1. Checks configuration exists
+2. Tests connection to Convex backend
+3. Creates a test session to verify sync works
+4. Reports success or failure
+
+**Output example:**
+
+```
+  Claude Code Sync - Connection Test
+
+Configuration:
+  Convex URL: https://your-project.convex.cloud
+  API Key:    osk_****...****
+
+Testing connection...
+Connection: OK
+
+Creating test session...
+Test session created successfully
+
+Sync test passed. Ready to sync Claude Code sessions.
+```
+
+**Note:** This creates a small test session in your OpenSync dashboard that you can delete later.
+
 ### hook
 
 Handle Claude Code hook events. This command is called internally by Claude Code and reads JSON from stdin.
@@ -449,6 +483,7 @@ claude-code-sync login
 | Configure credentials | `claude-code-sync login` |
 | Configure Claude Code | `claude-code-sync setup` |
 | Verify everything | `claude-code-sync verify` |
+| Test sync | `claude-code-sync synctest` |
 | Check status | `claude-code-sync status` |
 | View config | `claude-code-sync config` |
 | View config (JSON) | `claude-code-sync config --json` |

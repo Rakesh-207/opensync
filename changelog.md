@@ -18,6 +18,7 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Prompt/Completion token breakdown in usage table
 - ConfirmModal component for themed confirmation dialogs (replaces browser confirm())
 - Session delete confirmation modal in sessions view
+- Date range selector in Usage Overview (7, 14, 30, 60, 90 days options)
 - Daily/Weekly/Monthly view toggle for consumption breakdown
 - Cumulative mode toggle for usage visualization
 - Project and model filters in consumption breakdown
