@@ -6,6 +6,10 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Added
+
+- Collapsible Profile section in Settings page (collapsed by default for privacy during demos/recordings)
+
 ### Fixed
 
 - Fixed delete account not removing Convex data: changed deletion order to delete Convex data first, then WorkOS
@@ -13,6 +17,7 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Changed
 
+- Removed user email from dropdown menus across all pages (Dashboard, Context, Evals, Header) for cleaner UX
 - Removed search bar from Dashboard header, added search icon to Context link for cleaner UX
 - Search functionality consolidated into dedicated Context page (/context)
 - Login page now supports tan mode theme with icon-only theme switcher in bottom right footer

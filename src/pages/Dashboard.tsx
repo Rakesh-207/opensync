@@ -221,7 +221,6 @@ export function DashboardPage() {
             <div className={cn("absolute right-0 top-full mt-1 w-48 py-1 border rounded-md shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50", t.bgDropdown, t.border)}>
               <div className={cn("px-3 py-2 border-b", t.border)}>
                 <p className={cn("text-sm font-normal", t.textSecondary)}>{user?.firstName} {user?.lastName}</p>
-                <p className={cn("text-xs", t.textDim)}>{user?.email}</p>
               </div>
               <Link to="/settings" className={cn("flex items-center gap-2 px-3 py-2 text-sm transition-colors", t.textMuted, t.bgHover)}>
                 <Settings className="h-3.5 w-3.5" />

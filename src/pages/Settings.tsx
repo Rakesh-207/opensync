@@ -23,6 +23,8 @@ import {
   Moon,
   AlertTriangle,
   Loader2,
+  ChevronDown,
+  ChevronRight,
 } from "lucide-react";
 
 // Convex URL from environment
@@ -38,6 +40,7 @@ export function SettingsPage() {
   const [newApiKey, setNewApiKey] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<"api" | "profile">("api");
   const [showRevokeModal, setShowRevokeModal] = useState(false);
+  const [showProfile, setShowProfile] = useState(false);
   
   // Danger zone state
   const [showDeleteDataModal, setShowDeleteDataModal] = useState(false);
@@ -373,36 +376,56 @@ export function SettingsPage() {
         {/* Profile Tab */}
         {activeTab === "profile" && (
           <div className="space-y-8">
+            {/* Collapsible Profile Section */}
             <section>
-              <h2 className={cn("text-sm font-normal mb-4 flex items-center gap-2", t.textMuted)}>
+              <button
+                onClick={() => setShowProfile(!showProfile)}
+                className={cn(
+                  "w-full text-sm font-normal mb-4 flex items-center gap-2 transition-colors",
+                  t.textMuted,
+                  t.bgHover,
+                  "rounded-md p-2 -ml-2"
+                )}
+              >
+                {showProfile ? (
+                  <ChevronDown className="h-4 w-4" />
+                ) : (
+                  <ChevronRight className="h-4 w-4" />
+                )}
                 <User className="h-4 w-4" />
                 Profile
-              </h2>
-              <div className={cn("p-4 rounded-lg border", t.bgCard, t.border)}>
-                <div className="flex items-center gap-4">
-                  {user?.profilePictureUrl ? (
-                    <img src={user.profilePictureUrl} alt="" className="h-14 w-14 rounded-full" />
-                  ) : (
-                    <div className={cn("h-14 w-14 rounded-full flex items-center justify-center text-lg font-normal", t.bgSecondary, t.textSubtle)}>
-                      {user?.firstName?.[0] || user?.email?.[0] || "?"}
+                <span className={cn("text-xs ml-2", t.textDim)}>
+                  {showProfile ? "Click to collapse" : "Click to expand"}
+                </span>
+              </button>
+
+              {showProfile && (
+                <div className={cn("p-4 rounded-lg border", t.bgCard, t.border)}>
+                  <div className="flex items-center gap-4">
+                    {user?.profilePictureUrl ? (
+                      <img src={user.profilePictureUrl} alt="" className="h-14 w-14 rounded-full" />
+                    ) : (
+                      <div className={cn("h-14 w-14 rounded-full flex items-center justify-center text-lg font-normal", t.bgSecondary, t.textSubtle)}>
+                        {user?.firstName?.[0] || user?.email?.[0] || "?"}
+                      </div>
+                    )}
+                    <div>
+                      <p className={t.textPrimary}>{user?.firstName} {user?.lastName}</p>
+                      <p className={cn("text-sm", t.textSubtle)}>{user?.email}</p>
                     </div>
-                  )}
-                  <div>
-                    <p className={t.textPrimary}>{user?.firstName} {user?.lastName}</p>
-                    <p className={cn("text-sm", t.textSubtle)}>{user?.email}</p>
+                  </div>
+
+                  <div className={cn("mt-6 pt-4 border-t", t.border)}>
+                    <button
+                      onClick={signOut}
+                      className="flex items-center gap-2 px-4 py-2 rounded-md text-sm text-red-400/80 hover:bg-red-500/10 transition-colors"
+                    >
+                      <LogOut className="h-4 w-4" />
+                      Sign out
+                    </button>
                   </div>
                 </div>
-
-                <div className={cn("mt-6 pt-4 border-t", t.border)}>
-                  <button
-                    onClick={signOut}
-                    className="flex items-center gap-2 px-4 py-2 rounded-md text-sm text-red-400/80 hover:bg-red-500/10 transition-colors"
-                  >
-                    <LogOut className="h-4 w-4" />
-                    Sign out
-                  </button>
-                </div>
-              </div>
+              )}
             </section>
 
             {/* Account info */}

@@ -93,6 +93,10 @@ None currently.
 
 ## Recently Completed
 
+- [x] Collapsible Profile section in Settings (collapsed by default, hides email for video demos)
+
+- [x] Removed user email from dropdown menus (Dashboard, Context, Evals, Header) for cleaner UX
+
 - [x] Page-specific theme defaults configuration
   - Added PAGE_THEME_DEFAULTS config object in theme.tsx
   - Added usePageTheme hook to apply different defaults per page

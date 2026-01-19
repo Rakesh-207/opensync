@@ -91,7 +91,6 @@ export const Header = forwardRef<HTMLInputElement, HeaderProps>(
               <p className="text-sm font-medium text-zinc-200">
                 {user?.firstName} {user?.lastName}
               </p>
-              <p className="text-xs text-zinc-500">{user?.email}</p>
             </div>
             <Link
               to="/settings"

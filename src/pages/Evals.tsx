@@ -204,7 +204,7 @@ export function EvalsPage() {
           <button className={cn("flex items-center gap-2 px-2 py-1 rounded-md", t.bgHover)}>
             <User className={cn("h-4 w-4", t.textSubtle)} />
             <span className={cn("text-xs", t.textSubtle)}>
-              {user?.email?.split("@")[0]}
+              {user?.firstName || "User"}
             </span>
           </button>
           <div
