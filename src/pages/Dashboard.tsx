@@ -1072,6 +1072,9 @@ function TimelineView({
   );
 }
 
+// Sort field type for projects
+type ProjectSortField = "project" | "sessions" | "totalTokens" | "cost" | "lastActive" | "totalDurationMs";
+
 // Analytics View - Charts and insights
 function AnalyticsView({
   summaryStats,
@@ -1087,6 +1090,67 @@ function AnalyticsView({
   theme: "dark" | "tan";
 }) {
   const t = getThemeClasses(theme);
+  
+  // Filter and sort state for projects
+  const [projectSearch, setProjectSearch] = useState("");
+  const [projectSortField, setProjectSortField] = useState<ProjectSortField>("lastActive");
+  const [projectSortOrder, setProjectSortOrder] = useState<SortOrder>("desc");
+  const [minSessions, setMinSessions] = useState<number | undefined>();
+  const [minTokens, setMinTokens] = useState<number | undefined>();
+  
+  // Filter and sort projects
+  const filteredProjects = useMemo(() => {
+    let filtered = [...projectStats];
+    
+    // Search filter
+    if (projectSearch.trim()) {
+      const query = projectSearch.toLowerCase();
+      filtered = filtered.filter((p) => p.project.toLowerCase().includes(query));
+    }
+    
+    // Min sessions filter
+    if (minSessions !== undefined) {
+      filtered = filtered.filter((p) => p.sessions >= minSessions);
+    }
+    
+    // Min tokens filter
+    if (minTokens !== undefined) {
+      filtered = filtered.filter((p) => p.totalTokens >= minTokens);
+    }
+    
+    // Sort
+    filtered.sort((a, b) => {
+      const aVal = a[projectSortField] ?? 0;
+      const bVal = b[projectSortField] ?? 0;
+      if (typeof aVal === "string" && typeof bVal === "string") {
+        return projectSortOrder === "desc" 
+          ? bVal.localeCompare(aVal) 
+          : aVal.localeCompare(bVal);
+      }
+      return projectSortOrder === "desc" 
+        ? (bVal as number) - (aVal as number) 
+        : (aVal as number) - (bVal as number);
+    });
+    
+    return filtered;
+  }, [projectStats, projectSearch, minSessions, minTokens, projectSortField, projectSortOrder]);
+
+  const handleProjectSort = (field: ProjectSortField) => {
+    if (field === projectSortField) {
+      setProjectSortOrder(projectSortOrder === "asc" ? "desc" : "asc");
+    } else {
+      setProjectSortField(field);
+      setProjectSortOrder("desc");
+    }
+  };
+
+  const hasActiveProjectFilters = !!(projectSearch.trim() || minSessions !== undefined || minTokens !== undefined);
+  
+  const clearProjectFilters = () => {
+    setProjectSearch("");
+    setMinSessions(undefined);
+    setMinTokens(undefined);
+  };
   
   // Calculate efficiency metrics
   const avgTokensPerMessage = summaryStats?.totalMessages 
@@ -1259,26 +1323,147 @@ function AnalyticsView({
 
         {/* Projects table with expanded metrics */}
         <div className={cn("rounded-lg border overflow-hidden", t.bgCard, t.border)}>
-          <div className={cn("px-4 py-3 border-b", t.border)}>
+          {/* Filter bar */}
+          <div className={cn("px-4 py-3 border-b flex items-center gap-3 flex-wrap", t.border)}>
             <h3 className={cn("text-xs font-normal", t.textMuted)}>Projects Overview</h3>
+            
+            <div className="flex-1" />
+            
+            {/* Search */}
+            <div className="relative">
+              <Search className={cn("absolute left-2 top-1/2 -translate-y-1/2 h-3 w-3", t.iconMuted)} />
+              <input
+                type="text"
+                value={projectSearch}
+                onChange={(e) => setProjectSearch(e.target.value)}
+                placeholder="Search projects..."
+                className={cn(
+                  "h-7 pl-7 pr-3 rounded border text-xs focus:outline-none w-40",
+                  t.bgInput, t.borderInput, t.textSecondary, t.textPlaceholder, t.borderFocus
+                )}
+              />
+            </div>
+            
+            {/* Min sessions filter */}
+            <div className="flex items-center gap-1.5">
+              <span className={cn("text-[10px]", t.textDim)}>Min sessions:</span>
+              <select
+                value={minSessions ?? ""}
+                onChange={(e) => setMinSessions(e.target.value ? Number(e.target.value) : undefined)}
+                className={cn("text-xs rounded px-2 py-1 h-7 focus:outline-none", t.bgCode, t.border, t.textSecondary)}
+              >
+                <option value="">All</option>
+                <option value="2">2+</option>
+                <option value="5">5+</option>
+                <option value="10">10+</option>
+                <option value="25">25+</option>
+              </select>
+            </div>
+            
+            {/* Min tokens filter */}
+            <div className="flex items-center gap-1.5">
+              <span className={cn("text-[10px]", t.textDim)}>Min tokens:</span>
+              <select
+                value={minTokens ?? ""}
+                onChange={(e) => setMinTokens(e.target.value ? Number(e.target.value) : undefined)}
+                className={cn("text-xs rounded px-2 py-1 h-7 focus:outline-none", t.bgCode, t.border, t.textSecondary)}
+              >
+                <option value="">All</option>
+                <option value="1000">1K+</option>
+                <option value="10000">10K+</option>
+                <option value="50000">50K+</option>
+                <option value="100000">100K+</option>
+              </select>
+            </div>
+            
+            {hasActiveProjectFilters && (
+              <button onClick={clearProjectFilters} className={cn("text-xs", t.textSubtle)}>
+                Clear
+              </button>
+            )}
+            
+            <span className={cn("text-[10px]", t.textDim)}>
+              {filteredProjects.length} of {projectStats.length}
+            </span>
           </div>
+          
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
                 <tr className={cn("border-b text-[10px] uppercase tracking-wider", t.borderLight, t.textDim)}>
-                  <th className="px-4 py-2 text-left font-normal">Project</th>
-                  <th className="px-4 py-2 text-right font-normal">Sessions</th>
+                  <th className="px-4 py-2 text-left font-normal">
+                    <button 
+                      onClick={() => handleProjectSort("project")}
+                      className={cn("flex items-center gap-1", t.textMuted)}
+                    >
+                      Project
+                      {projectSortField === "project" && (
+                        <ChevronDown className={cn("h-3 w-3", projectSortOrder === "asc" && "rotate-180")} />
+                      )}
+                    </button>
+                  </th>
+                  <th className="px-4 py-2 text-right font-normal">
+                    <button 
+                      onClick={() => handleProjectSort("sessions")}
+                      className={cn("flex items-center gap-1 ml-auto", t.textMuted)}
+                    >
+                      Sessions
+                      {projectSortField === "sessions" && (
+                        <ChevronDown className={cn("h-3 w-3", projectSortOrder === "asc" && "rotate-180")} />
+                      )}
+                    </button>
+                  </th>
                   <th className="px-4 py-2 text-right font-normal">Messages</th>
-                  <th className="px-4 py-2 text-right font-normal">Total Tokens</th>
+                  <th className="px-4 py-2 text-right font-normal">
+                    <button 
+                      onClick={() => handleProjectSort("totalTokens")}
+                      className={cn("flex items-center gap-1 ml-auto", t.textMuted)}
+                    >
+                      Total Tokens
+                      {projectSortField === "totalTokens" && (
+                        <ChevronDown className={cn("h-3 w-3", projectSortOrder === "asc" && "rotate-180")} />
+                      )}
+                    </button>
+                  </th>
                   <th className="px-4 py-2 text-right font-normal">Prompt</th>
                   <th className="px-4 py-2 text-right font-normal">Completion</th>
-                  <th className="px-4 py-2 text-right font-normal">Duration</th>
-                  <th className="px-4 py-2 text-right font-normal">Cost</th>
-                  <th className="px-4 py-2 text-right font-normal">Last Active</th>
+                  <th className="px-4 py-2 text-right font-normal">
+                    <button 
+                      onClick={() => handleProjectSort("totalDurationMs")}
+                      className={cn("flex items-center gap-1 ml-auto", t.textMuted)}
+                    >
+                      Duration
+                      {projectSortField === "totalDurationMs" && (
+                        <ChevronDown className={cn("h-3 w-3", projectSortOrder === "asc" && "rotate-180")} />
+                      )}
+                    </button>
+                  </th>
+                  <th className="px-4 py-2 text-right font-normal">
+                    <button 
+                      onClick={() => handleProjectSort("cost")}
+                      className={cn("flex items-center gap-1 ml-auto", t.textMuted)}
+                    >
+                      Cost
+                      {projectSortField === "cost" && (
+                        <ChevronDown className={cn("h-3 w-3", projectSortOrder === "asc" && "rotate-180")} />
+                      )}
+                    </button>
+                  </th>
+                  <th className="px-4 py-2 text-right font-normal">
+                    <button 
+                      onClick={() => handleProjectSort("lastActive")}
+                      className={cn("flex items-center gap-1 ml-auto", t.textMuted)}
+                    >
+                      Last Active
+                      {projectSortField === "lastActive" && (
+                        <ChevronDown className={cn("h-3 w-3", projectSortOrder === "asc" && "rotate-180")} />
+                      )}
+                    </button>
+                  </th>
                 </tr>
               </thead>
               <tbody>
-                {projectStats.map((p) => (
+                {filteredProjects.map((p) => (
                   <tr key={p.project} className={cn("border-b transition-colors", t.borderLight, t.bgHover)}>
                     <td className={cn("px-4 py-2.5 text-sm truncate max-w-[200px]", t.textSecondary)}>{p.project}</td>
                     <td className={cn("px-4 py-2.5 text-sm text-right", t.textSubtle)}>{p.sessions}</td>
@@ -1294,8 +1479,10 @@ function AnalyticsView({
               </tbody>
             </table>
           </div>
-          {projectStats.length === 0 && (
-            <div className={cn("px-4 py-8 text-center text-sm", t.textDim)}>No project data</div>
+          {filteredProjects.length === 0 && (
+            <div className={cn("px-4 py-8 text-center text-sm", t.textDim)}>
+              {projectStats.length === 0 ? "No project data" : "No projects match filters"}
+            </div>
           )}
         </div>
       </div>

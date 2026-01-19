@@ -17,6 +17,7 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Enhanced Analytics tab with efficiency metrics (tokens/message, cost per 1K tokens, prompt/completion ratio)
 - Extended project analytics table with messages, prompt tokens, completion tokens, and duration columns
 - New stat cards with icons for token breakdown (prompt, completion, total, messages, duration)
+- Projects Overview filtering (search, min sessions, min tokens) with sortable columns
 
 ### Fixed
 
