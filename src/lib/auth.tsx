@@ -1,7 +1,7 @@
 // Auth wrapper that uses WorkOS AuthKit
 // This provides a consistent interface for components while using AuthKit under the hood
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import { useAuth as useAuthKit } from "@workos-inc/authkit-react";
 import { useConvexAuth } from "convex/react";
 
@@ -32,8 +32,10 @@ export function useAuth(): AuthState {
   } = useAuthKit();
   const { isLoading: convexLoading, isAuthenticated: convexAuthenticated } = useConvexAuth();
   
-  // Track if we've attempted token refresh to prevent loops
-  const hasAttemptedRefresh = useRef(false);
+  // Track token refresh attempts
+  const refreshAttempts = useRef(0);
+  const maxRefreshAttempts = 3;
+  const [isSyncing, setIsSyncing] = useState(false);
 
   // Map WorkOS user to our User interface
   const mappedUser: User | null = user
@@ -46,41 +48,67 @@ export function useAuth(): AuthState {
       }
     : null;
 
-  // Determine loading state - loading if either provider is loading
-  const isLoading = authKitLoading || convexLoading;
+  // Determine base loading state
+  const isBaseLoading = authKitLoading || convexLoading;
   
   // WorkOS has a user session
   const hasWorkosSession = !!user;
 
-  // If WorkOS has session but Convex doesn't, try to refresh token once
+  // Refresh token when WorkOS has session but Convex doesn't
+  const refreshToken = useCallback(async () => {
+    if (!getAccessToken || refreshAttempts.current >= maxRefreshAttempts) {
+      setIsSyncing(false);
+      return;
+    }
+    
+    refreshAttempts.current += 1;
+    setIsSyncing(true);
+    
+    try {
+      await getAccessToken();
+      // Give Convex a moment to process the new token
+      await new Promise(resolve => setTimeout(resolve, 100));
+    } catch {
+      // Token refresh failed - will retry or give up
+    }
+    
+    setIsSyncing(false);
+  }, [getAccessToken]);
+
+  // If WorkOS has session but Convex doesn't, try to refresh token
   useEffect(() => {
     if (
       hasWorkosSession && 
       !convexAuthenticated && 
-      !isLoading && 
-      !hasAttemptedRefresh.current &&
-      getAccessToken
+      !isBaseLoading && 
+      !isSyncing &&
+      refreshAttempts.current < maxRefreshAttempts
     ) {
-      hasAttemptedRefresh.current = true;
-      // Trigger token refresh - this will update Convex auth state
-      getAccessToken().catch(() => {
-        // Token expired or invalid - user needs to sign in again
-      });
+      refreshToken();
     }
     
-    // Reset refresh flag when user changes
+    // Reset attempts when user signs out
     if (!hasWorkosSession) {
-      hasAttemptedRefresh.current = false;
+      refreshAttempts.current = 0;
     }
-  }, [hasWorkosSession, convexAuthenticated, isLoading, getAccessToken]);
+  }, [hasWorkosSession, convexAuthenticated, isBaseLoading, isSyncing, refreshToken]);
 
-  // Use Convex auth state as source of truth, but show loading while syncing
+  // Reset attempts when successfully authenticated
+  useEffect(() => {
+    if (convexAuthenticated) {
+      refreshAttempts.current = 0;
+    }
+  }, [convexAuthenticated]);
+
+  // Use Convex auth state as source of truth
   const isAuthenticated = convexAuthenticated;
+  
+  // Show loading while syncing (but with timeout protection via maxRefreshAttempts)
+  const isLoading = isBaseLoading || (isSyncing && hasWorkosSession);
 
   return {
     user: mappedUser,
-    // Show loading if WorkOS has user but Convex hasn't synced yet
-    isLoading: isLoading || (hasWorkosSession && !convexAuthenticated && !hasAttemptedRefresh.current),
+    isLoading,
     isAuthenticated,
     signIn: () => signIn(),
     signOut: () => signOut(),

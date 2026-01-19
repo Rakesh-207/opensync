@@ -1,3 +1,4 @@
+import { useState, useEffect, type ReactNode } from "react";
 import { Routes, Route, Navigate, Link } from "react-router-dom";
 import { useAuth } from "./lib/auth";
 import { ThemeProvider } from "./lib/theme";
@@ -6,10 +7,21 @@ import { DashboardPage } from "./pages/Dashboard";
 import { DocsPage } from "./pages/Docs";
 import { PublicSessionPage } from "./pages/PublicSession";
 import { SettingsPage } from "./pages/Settings";
+import { EvalsPage } from "./pages/Evals";
 import { Loader2, ArrowLeft } from "lucide-react";
 
-function ProtectedRoute({ children }: { children: React.ReactNode }) {
+function ProtectedRoute({ children }: { children: ReactNode }) {
   const { isLoading, isAuthenticated, user } = useAuth();
+  const [syncTimeout, setSyncTimeout] = useState(false);
+
+  // Timeout for sync loading state (5 seconds max)
+  useEffect(() => {
+    if (user && !isAuthenticated && !isLoading) {
+      const timer = setTimeout(() => setSyncTimeout(true), 5000);
+      return () => clearTimeout(timer);
+    }
+    setSyncTimeout(false);
+  }, [user, isAuthenticated, isLoading]);
 
   // Show loading while auth state is being determined
   if (isLoading) {
@@ -23,9 +35,13 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
     );
   }
 
-  // If we have a WorkOS user but Convex isn't authenticated yet, show loading
-  // This handles the brief window during session rehydration
+  // If we have a WorkOS user but Convex isn't authenticated yet, show syncing
+  // But if sync times out, redirect to login (session may have expired)
   if (user && !isAuthenticated) {
+    if (syncTimeout) {
+      // Session sync failed - redirect to login
+      return <Navigate to="/login" replace />;
+    }
     return (
       <div className="min-h-screen bg-[#0E0E0E] flex items-center justify-center">
         <div className="text-center">
@@ -88,6 +104,14 @@ export default function App() {
         element={
           <ProtectedRoute>
             <SettingsPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/evals"
+        element={
+          <ProtectedRoute>
+            <EvalsPage />
           </ProtectedRoute>
         }
       />

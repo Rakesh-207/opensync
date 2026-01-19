@@ -53,6 +53,12 @@ export default defineSchema({
     summary: v.optional(v.string()),
     messageCount: v.number(),
     
+    // Eval fields for export datasets
+    evalReady: v.optional(v.boolean()),
+    reviewedAt: v.optional(v.number()),
+    evalNotes: v.optional(v.string()),
+    evalTags: v.optional(v.array(v.string())),
+    
     createdAt: v.number(),
     updatedAt: v.number(),
   })
@@ -62,6 +68,7 @@ export default defineSchema({
     .index("by_user_external", ["userId", "externalId"])
     .index("by_public_slug", ["publicSlug"])
     .index("by_user_source", ["userId", "source"])
+    .index("by_user_eval_ready", ["userId", "evalReady"])
     .searchIndex("search_sessions", {
       searchField: "searchableText",
       filterFields: ["userId"],
@@ -100,7 +107,7 @@ export default defineSchema({
     order: v.number(),
   }).index("by_message", ["messageId"]),
 
-  // Vector embeddings for semantic search
+  // Vector embeddings for semantic search (session-level)
   sessionEmbeddings: defineTable({
     sessionId: v.id("sessions"),
     userId: v.id("users"),
@@ -108,6 +115,24 @@ export default defineSchema({
     textHash: v.string(),
     createdAt: v.number(),
   })
+    .index("by_session", ["sessionId"])
+    .index("by_user", ["userId"])
+    .vectorIndex("by_embedding", {
+      vectorField: "embedding",
+      dimensions: 1536,
+      filterFields: ["userId"],
+    }),
+
+  // Vector embeddings for semantic search (message-level, finer-grained)
+  messageEmbeddings: defineTable({
+    messageId: v.id("messages"),
+    sessionId: v.id("sessions"),
+    userId: v.id("users"),
+    embedding: v.array(v.float64()),
+    textHash: v.string(),
+    createdAt: v.number(),
+  })
+    .index("by_message", ["messageId"])
     .index("by_session", ["sessionId"])
     .index("by_user", ["userId"])
     .vectorIndex("by_embedding", {

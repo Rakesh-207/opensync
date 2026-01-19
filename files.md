@@ -22,15 +22,16 @@ Backend functions and schema.
 
 | File | Description |
 |------|-------------|
-| `schema.ts` | Database schema: users, sessions (with source field for plugin identification), messages, parts, embeddings, apiLogs |
+| `schema.ts` | Database schema: users, sessions (with eval fields: evalReady, reviewedAt, evalNotes, evalTags), messages, parts, sessionEmbeddings, messageEmbeddings, apiLogs |
 | `auth.config.ts` | WorkOS JWT validation configuration |
 | `convex.config.ts` | Convex app configuration |
 | `users.ts` | User queries/mutations: getOrCreate, me, stats, API key management |
 | `sessions.ts` | Session CRUD: list, get, getPublic, setVisibility, remove, getMarkdown, upsert (with source param), listExternalIds, exportAllDataCSV |
 | `messages.ts` | Message mutations: upsert with parts and source parameter for auto-created sessions |
 | `analytics.ts` | Analytics queries with source filtering: dailyStats, modelStats, projectStats, providerStats, summaryStats, sessionsWithDetails, sourceStats |
-| `search.ts` | Full-text and semantic search: searchSessions, searchMessages, semanticSearch, hybridSearch |
-| `embeddings.ts` | Vector embedding generation for semantic search |
+| `search.ts` | Full-text and semantic search: searchSessions, searchMessages, semanticSearch, hybridSearch, semanticSearchMessages, hybridSearchMessages |
+| `embeddings.ts` | Vector embedding generation for session-level and message-level semantic search |
+| `evals.ts` | Eval management: setEvalReady, listEvalSessions, getEvalTags, generateEvalExport (DeepEval JSON, OpenAI JSONL, Filesystem formats) |
 | `api.ts` | Internal API functions: listSessions, getSession, fullTextSearch, exportSession, getStats, semanticSearch, hybridSearch, getContext |
 | `http.ts` | HTTP endpoints: /sync/* (session with source param, message, batch, sessions/list), /api/*, /health |
 | `rag.ts` | RAG retrieval functions for context engineering |
@@ -43,7 +44,7 @@ React frontend application.
 | File | Description |
 |------|-------------|
 | `main.tsx` | App entry point with providers (Convex, AuthKit, Router) |
-| `App.tsx` | Route definitions and protected route wrapper |
+| `App.tsx` | Route definitions, protected route wrapper with sync timeout (5s max, redirects to login on failure) |
 | `index.css` | Global styles, Tailwind imports, dark theme tokens, chart utilities, scrollbar-hide utility |
 | `vite-env.d.ts` | Vite client type declarations for import.meta.env |
 
@@ -52,10 +53,11 @@ React frontend application.
 | File | Description |
 |------|-------------|
 | `Login.tsx` | Login page with WorkOS AuthKit integration, privacy messaging |
-| `Dashboard.tsx` | Main dashboard with source filter dropdown, source badges (CC/OC), and three views: Overview (stats, charts), Sessions (filterable list with source badges), Analytics (detailed breakdowns) |
+| `Dashboard.tsx` | Main dashboard with source filter dropdown, source badges (CC/OC), eval toggle button, and four views: Overview (stats, charts), Sessions (filterable list with source badges), Evals (eval-ready sessions with export modal), Analytics (detailed breakdowns) |
 | `Settings.tsx` | Tabbed settings: Usage (charts, stats), API Access (keys, endpoints), Profile (account info) |
 | `Docs.tsx` | Interactive API documentation page |
 | `PublicSession.tsx` | Public session viewer for shared sessions (/s/:slug) |
+| `Evals.tsx` | Evals page with eval-ready session list, stats, export modal (DeepEval JSON, OpenAI JSONL, Filesystem formats) |
 
 ### src/components/
 

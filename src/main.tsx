@@ -10,10 +10,9 @@ import "./index.css";
 const convex = new ConvexReactClient(import.meta.env.VITE_CONVEX_URL);
 
 // Handle redirect after OAuth callback
-// Clear the URL and navigate to dashboard after auth completes
+// Clean up URL params after auth completes
 const onRedirectCallback = () => {
-  // Clean up URL by removing auth params
-  const cleanUrl = window.location.origin + "/";
+  const cleanUrl = window.location.origin + window.location.pathname;
   window.history.replaceState({}, document.title, cleanUrl);
 };
 
@@ -23,8 +22,6 @@ function Root() {
       clientId={import.meta.env.VITE_WORKOS_CLIENT_ID}
       redirectUri={import.meta.env.VITE_REDIRECT_URI || `${window.location.origin}/callback`}
       onRedirectCallback={onRedirectCallback}
-      // Ensure session persists across refreshes
-      devMode={import.meta.env.DEV}
     >
       <ConvexProviderWithAuthKit client={convex} useAuth={useAuth}>
         <BrowserRouter>

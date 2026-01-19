@@ -187,3 +187,253 @@ export const getSessionsNeedingEmbeddings = internalQuery({
     return needsEmbedding;
   },
 });
+
+// ============================================================================
+// MESSAGE-LEVEL EMBEDDINGS (finer-grained retrieval)
+// ============================================================================
+
+// Generate embedding for a single message
+export const generateForMessage = internalAction({
+  args: { messageId: v.id("messages") },
+  returns: v.null(),
+  handler: async (ctx, { messageId }) => {
+    // Get message data
+    const data = await ctx.runQuery(internal.embeddings.getMessageForEmbedding, {
+      messageId,
+    });
+
+    if (!data || !data.textContent) return null;
+
+    const textHash = hashText(data.textContent);
+
+    // Check if embedding already up to date
+    const existing = await ctx.runQuery(internal.embeddings.getByMessageAndHash, {
+      messageId,
+      textHash,
+    });
+
+    if (existing) return null;
+
+    // Generate embedding via OpenAI
+    const embedding = await embed(data.textContent);
+
+    // Store the embedding
+    await ctx.runMutation(internal.embeddings.storeMessageEmbedding, {
+      messageId,
+      sessionId: data.sessionId,
+      userId: data.userId,
+      embedding,
+      textHash,
+    });
+
+    return null;
+  },
+});
+
+// Get message data for embedding generation
+export const getMessageForEmbedding = internalQuery({
+  args: { messageId: v.id("messages") },
+  returns: v.union(
+    v.null(),
+    v.object({
+      textContent: v.string(),
+      sessionId: v.id("sessions"),
+      userId: v.id("users"),
+    })
+  ),
+  handler: async (ctx, { messageId }) => {
+    const message = await ctx.db.get(messageId);
+    if (!message || !message.textContent) return null;
+
+    const session = await ctx.db.get(message.sessionId);
+    if (!session) return null;
+
+    return {
+      textContent: message.textContent,
+      sessionId: message.sessionId,
+      userId: session.userId,
+    };
+  },
+});
+
+// Check if message embedding is current
+export const getByMessageAndHash = internalQuery({
+  args: {
+    messageId: v.id("messages"),
+    textHash: v.string(),
+  },
+  returns: v.union(
+    v.null(),
+    v.object({
+      _id: v.id("messageEmbeddings"),
+      _creationTime: v.number(),
+      messageId: v.id("messages"),
+      sessionId: v.id("sessions"),
+      userId: v.id("users"),
+      embedding: v.array(v.float64()),
+      textHash: v.string(),
+      createdAt: v.number(),
+    })
+  ),
+  handler: async (ctx, { messageId, textHash }) => {
+    const existing = await ctx.db
+      .query("messageEmbeddings")
+      .withIndex("by_message", (q) => q.eq("messageId", messageId))
+      .first();
+
+    if (existing && existing.textHash === textHash) {
+      return existing;
+    }
+
+    return null;
+  },
+});
+
+// Store message embedding
+export const storeMessageEmbedding = internalMutation({
+  args: {
+    messageId: v.id("messages"),
+    sessionId: v.id("sessions"),
+    userId: v.id("users"),
+    embedding: v.array(v.float64()),
+    textHash: v.string(),
+  },
+  returns: v.null(),
+  handler: async (ctx, args) => {
+    // Delete old embedding if exists
+    const existing = await ctx.db
+      .query("messageEmbeddings")
+      .withIndex("by_message", (q) => q.eq("messageId", args.messageId))
+      .first();
+
+    if (existing) {
+      await ctx.db.delete(existing._id);
+    }
+
+    // Insert new embedding
+    await ctx.db.insert("messageEmbeddings", {
+      messageId: args.messageId,
+      sessionId: args.sessionId,
+      userId: args.userId,
+      embedding: args.embedding,
+      textHash: args.textHash,
+      createdAt: Date.now(),
+    });
+
+    return null;
+  },
+});
+
+// Batch generate message embeddings for a session
+export const batchGenerateForSession = internalAction({
+  args: { sessionId: v.id("sessions") },
+  returns: v.number(),
+  handler: async (ctx, { sessionId }): Promise<number> => {
+    const messageIds: Id<"messages">[] = await ctx.runQuery(
+      internal.embeddings.getMessagesNeedingEmbeddings,
+      { sessionId }
+    );
+
+    for (const messageId of messageIds) {
+      try {
+        await ctx.runAction(internal.embeddings.generateForMessage, { messageId });
+      } catch (e) {
+        console.error(`Failed to embed message ${messageId}:`, e);
+      }
+    }
+
+    return messageIds.length;
+  },
+});
+
+// Batch generate message embeddings for all user's messages
+export const batchGenerateMessagesForUser = internalAction({
+  args: { userId: v.id("users") },
+  returns: v.number(),
+  handler: async (ctx, { userId }): Promise<number> => {
+    const messageIds: Id<"messages">[] = await ctx.runQuery(
+      internal.embeddings.getAllMessagesNeedingEmbeddings,
+      { userId }
+    );
+
+    let count = 0;
+    for (const messageId of messageIds) {
+      try {
+        await ctx.runAction(internal.embeddings.generateForMessage, { messageId });
+        count++;
+      } catch (e) {
+        console.error(`Failed to embed message ${messageId}:`, e);
+      }
+    }
+
+    return count;
+  },
+});
+
+// Get messages in a session that need embeddings
+export const getMessagesNeedingEmbeddings = internalQuery({
+  args: { sessionId: v.id("sessions") },
+  returns: v.array(v.id("messages")),
+  handler: async (ctx, { sessionId }) => {
+    const messages = await ctx.db
+      .query("messages")
+      .withIndex("by_session", (q) => q.eq("sessionId", sessionId))
+      .collect();
+
+    const needsEmbedding: Id<"messages">[] = [];
+
+    for (const message of messages) {
+      // Skip messages without text content
+      if (!message.textContent) continue;
+
+      const embedding = await ctx.db
+        .query("messageEmbeddings")
+        .withIndex("by_message", (q) => q.eq("messageId", message._id))
+        .first();
+
+      if (!embedding) {
+        needsEmbedding.push(message._id);
+      }
+    }
+
+    return needsEmbedding;
+  },
+});
+
+// Get all messages for a user that need embeddings
+export const getAllMessagesNeedingEmbeddings = internalQuery({
+  args: { userId: v.id("users") },
+  returns: v.array(v.id("messages")),
+  handler: async (ctx, { userId }) => {
+    // Get all user's sessions
+    const sessions = await ctx.db
+      .query("sessions")
+      .withIndex("by_user", (q) => q.eq("userId", userId))
+      .collect();
+
+    const needsEmbedding: Id<"messages">[] = [];
+
+    for (const session of sessions) {
+      const messages = await ctx.db
+        .query("messages")
+        .withIndex("by_session", (q) => q.eq("sessionId", session._id))
+        .collect();
+
+      for (const message of messages) {
+        // Skip messages without text content
+        if (!message.textContent) continue;
+
+        const embedding = await ctx.db
+          .query("messageEmbeddings")
+          .withIndex("by_message", (q) => q.eq("messageId", message._id))
+          .first();
+
+        if (!embedding) {
+          needsEmbedding.push(message._id);
+        }
+      }
+    }
+
+    return needsEmbedding;
+  },
+});

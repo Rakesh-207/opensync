@@ -381,3 +381,228 @@ async function generateEmbedding(text: string): Promise<number[]> {
   const data = await response.json();
   return data.data[0].embedding;
 }
+
+// ============================================================================
+// MESSAGE-LEVEL SEMANTIC SEARCH (finer-grained retrieval)
+// ============================================================================
+
+// Type for message search results
+type MessageSearchResult = {
+  _id: Id<"messages">;
+  sessionId: Id<"sessions">;
+  externalId: string;
+  role: "user" | "assistant" | "system" | "unknown";
+  textContent?: string;
+  model?: string;
+  createdAt: number;
+  sessionTitle?: string;
+  projectPath?: string;
+  score: number;
+};
+
+// Semantic search on messages using vector embeddings
+export const semanticSearchMessages = action({
+  args: {
+    query: v.string(),
+    sessionId: v.optional(v.id("sessions")),
+    limit: v.optional(v.number()),
+  },
+  returns: v.array(
+    v.object({
+      _id: v.id("messages"),
+      sessionId: v.id("sessions"),
+      externalId: v.string(),
+      role: v.union(v.literal("user"), v.literal("assistant"), v.literal("system"), v.literal("unknown")),
+      textContent: v.optional(v.string()),
+      model: v.optional(v.string()),
+      createdAt: v.number(),
+      sessionTitle: v.optional(v.string()),
+      projectPath: v.optional(v.string()),
+      score: v.number(),
+    })
+  ),
+  handler: async (ctx, { query: searchQuery, sessionId, limit = 20 }): Promise<MessageSearchResult[]> => {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) return [];
+
+    // Get user
+    const user: UserResult = await ctx.runQuery(internal.search.getUserByWorkosId, {
+      workosId: identity.subject,
+    });
+    if (!user) return [];
+
+    // Generate embedding for query
+    const queryEmbedding = await generateEmbedding(searchQuery);
+
+    // Vector search on messageEmbeddings
+    const results: { _id: Id<"messageEmbeddings">; _score: number }[] = await ctx.vectorSearch(
+      "messageEmbeddings",
+      "by_embedding",
+      {
+        vector: queryEmbedding,
+        limit: limit * 2,
+        filter: (q: any) => q.eq("userId", user._id),
+      }
+    );
+
+    // Load messages with session info
+    const messages: MessageSearchResult[] = await ctx.runQuery(
+      internal.search.loadMessagesFromEmbeddings,
+      {
+        embeddingIds: results.map((r) => r._id),
+        scores: results.map((r) => r._score),
+        sessionIdFilter: sessionId,
+      }
+    );
+
+    return messages.slice(0, limit);
+  },
+});
+
+// Load messages from embedding IDs with session info
+export const loadMessagesFromEmbeddings = internalQuery({
+  args: {
+    embeddingIds: v.array(v.id("messageEmbeddings")),
+    scores: v.array(v.number()),
+    sessionIdFilter: v.optional(v.id("sessions")),
+  },
+  returns: v.array(
+    v.object({
+      _id: v.id("messages"),
+      sessionId: v.id("sessions"),
+      externalId: v.string(),
+      role: v.union(v.literal("user"), v.literal("assistant"), v.literal("system"), v.literal("unknown")),
+      textContent: v.optional(v.string()),
+      model: v.optional(v.string()),
+      createdAt: v.number(),
+      sessionTitle: v.optional(v.string()),
+      projectPath: v.optional(v.string()),
+      score: v.number(),
+    })
+  ),
+  handler: async (ctx, { embeddingIds, scores, sessionIdFilter }) => {
+    const messages: Array<{
+      _id: Id<"messages">;
+      sessionId: Id<"sessions">;
+      externalId: string;
+      role: "user" | "assistant" | "system" | "unknown";
+      textContent?: string;
+      model?: string;
+      createdAt: number;
+      sessionTitle?: string;
+      projectPath?: string;
+      score: number;
+    }> = [];
+
+    for (let i = 0; i < embeddingIds.length; i++) {
+      const emb = await ctx.db.get(embeddingIds[i]);
+      if (!emb) continue;
+
+      // Filter by sessionId if provided
+      if (sessionIdFilter && emb.sessionId !== sessionIdFilter) continue;
+
+      const message = await ctx.db.get(emb.messageId);
+      if (!message) continue;
+
+      const session = await ctx.db.get(emb.sessionId);
+
+      messages.push({
+        _id: message._id,
+        sessionId: message.sessionId,
+        externalId: message.externalId,
+        role: message.role,
+        textContent: message.textContent,
+        model: message.model,
+        createdAt: message.createdAt,
+        sessionTitle: session?.title,
+        projectPath: session?.projectPath,
+        score: scores[i],
+      });
+    }
+
+    return messages;
+  },
+});
+
+// Hybrid message search (full-text + semantic)
+export const hybridSearchMessages = action({
+  args: {
+    query: v.string(),
+    sessionId: v.optional(v.id("sessions")),
+    limit: v.optional(v.number()),
+    semanticWeight: v.optional(v.number()),
+  },
+  returns: v.array(
+    v.object({
+      _id: v.id("messages"),
+      _creationTime: v.number(),
+      sessionId: v.id("sessions"),
+      externalId: v.string(),
+      role: v.union(v.literal("user"), v.literal("assistant"), v.literal("system"), v.literal("unknown")),
+      textContent: v.optional(v.string()),
+      model: v.optional(v.string()),
+      promptTokens: v.optional(v.number()),
+      completionTokens: v.optional(v.number()),
+      durationMs: v.optional(v.number()),
+      createdAt: v.number(),
+      sessionTitle: v.optional(v.string()),
+      projectPath: v.optional(v.string()),
+    })
+  ),
+  handler: async (ctx, { query: searchQuery, sessionId, limit = 20, semanticWeight = 0.5 }) => {
+    // Run both searches in parallel
+    const [fullTextResults, semanticResults] = await Promise.all([
+      ctx.runQuery(api.search.searchMessages, {
+        query: searchQuery,
+        sessionId,
+        limit,
+      }),
+      ctx.runAction(api.search.semanticSearchMessages, {
+        query: searchQuery,
+        sessionId,
+        limit,
+      }),
+    ]);
+
+    // Merge and score results
+    const messageScores = new Map<string, { message: any; score: number }>();
+
+    // Score full-text results
+    fullTextResults.forEach((message: any, index: number) => {
+      const score = (1 - semanticWeight) * (1 - index / Math.max(fullTextResults.length, 1));
+      messageScores.set(message._id, { message, score });
+    });
+
+    // Score and merge semantic results
+    semanticResults.forEach((message: any, index: number) => {
+      const semanticScore = semanticWeight * (1 - index / Math.max(semanticResults.length, 1));
+      const existing = messageScores.get(message._id);
+      if (existing) {
+        existing.score += semanticScore;
+      } else {
+        // Convert semantic result format to match full-text format
+        messageScores.set(message._id, {
+          message: {
+            _id: message._id,
+            _creationTime: message.createdAt,
+            sessionId: message.sessionId,
+            externalId: message.externalId,
+            role: message.role,
+            textContent: message.textContent,
+            model: message.model,
+            createdAt: message.createdAt,
+            sessionTitle: message.sessionTitle,
+            projectPath: message.projectPath,
+          },
+          score: semanticScore,
+        });
+      }
+    });
+
+    // Sort by score and return top results
+    return Array.from(messageScores.values())
+      .sort((a, b) => b.score - a.score)
+      .slice(0, limit)
+      .map((item) => item.message);
+  },
+});

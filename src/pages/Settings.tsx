@@ -5,7 +5,6 @@ import { useAuth } from "../lib/auth";
 import { Link } from "react-router-dom";
 import { cn } from "../lib/utils";
 import { useTheme, getThemeClasses } from "../lib/theme";
-import { AreaChart, BarChart, ProgressBar, DonutChart } from "../components/Charts";
 import { ConfirmModal } from "../components/ConfirmModal";
 import {
   ArrowLeft,
@@ -13,20 +12,12 @@ import {
   Copy,
   Check,
   Trash2,
-  BarChart3,
-  Clock,
-  Coins,
-  MessageSquare,
-  Cpu,
   Terminal,
   Eye,
   EyeOff,
   ExternalLink,
   User,
   LogOut,
-  TrendingUp,
-  Folder,
-  Bot,
   Zap,
   Sun,
   Moon,
@@ -34,10 +25,6 @@ import {
 
 // Convex URL from environment
 const CONVEX_URL = import.meta.env.VITE_CONVEX_URL as string;
-
-// Colors for charts
-const MODEL_COLORS = ["#3b82f6", "#22c55e", "#f59e0b", "#ef4444", "#8b5cf6", "#06b6d4"];
-const TAN_MODEL_COLORS = ["#EB5601", "#8b7355", "#d14a01", "#6b6b6b", "#a67c52", "#4a4a4a"];
 
 export function SettingsPage() {
   const { user, signOut } = useAuth();
@@ -47,14 +34,11 @@ export function SettingsPage() {
   const [copiedUrl, setCopiedUrl] = useState(false);
   const [showApiKey, setShowApiKey] = useState(false);
   const [newApiKey, setNewApiKey] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<"usage" | "api" | "profile">("api");
+  const [activeTab, setActiveTab] = useState<"api" | "profile">("api");
   const [showRevokeModal, setShowRevokeModal] = useState(false);
 
   const currentUser = useQuery(api.users.me);
   const stats = useQuery(api.users.stats);
-  const dailyStats = useQuery(api.analytics.dailyStats, { days: 30 });
-  const modelStats = useQuery(api.analytics.modelStats, {});
-  const projectStats = useQuery(api.analytics.projectStats, {});
 
   const generateApiKey = useMutation(api.users.generateApiKey);
   const revokeApiKey = useMutation(api.users.revokeApiKey);
@@ -91,19 +75,6 @@ export function SettingsPage() {
     }
   };
 
-  const formatDuration = (ms: number) => {
-    const hours = Math.floor(ms / 3600000);
-    const minutes = Math.floor((ms % 3600000) / 60000);
-    if (hours > 0) return `${hours}h ${minutes}m`;
-    return `${minutes}m`;
-  };
-
-  const formatNumber = (n: number): string => {
-    if (n >= 1000000) return `${(n / 1000000).toFixed(1)}M`;
-    if (n >= 1000) return `${(n / 1000).toFixed(1)}K`;
-    return n.toLocaleString();
-  };
-
   return (
     <div className={cn("min-h-screen", t.bgPrimary)}>
       {/* Header */}
@@ -132,7 +103,7 @@ export function SettingsPage() {
       <main className="max-w-5xl mx-auto px-6 py-8">
         {/* Tabs */}
         <div className={cn("flex items-center gap-1 mb-8 border-b pb-4", t.border)}>
-          {(["usage", "api", "profile"] as const).map((tab) => (
+          {(["api", "profile"] as const).map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
@@ -148,174 +119,6 @@ export function SettingsPage() {
           ))}
         </div>
 
-        {/* Usage Tab */}
-        {activeTab === "usage" && (
-          <div className="space-y-8">
-            {/* Summary stats */}
-            <section>
-              <h2 className={cn("text-sm font-normal mb-4 flex items-center gap-2", t.textMuted)}>
-                <BarChart3 className="h-4 w-4" />
-                Overview
-              </h2>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <StatCard
-                  icon={<MessageSquare className="h-4 w-4" />}
-                  label="Sessions"
-                  value={stats?.sessionCount.toLocaleString() || "0"}
-                  theme={theme}
-                />
-                <StatCard
-                  icon={<Cpu className="h-4 w-4" />}
-                  label="Total Tokens"
-                  value={formatNumber(stats?.totalTokens || 0)}
-                  theme={theme}
-                />
-                <StatCard
-                  icon={<Coins className="h-4 w-4" />}
-                  label="Total Cost"
-                  value={`$${(stats?.totalCost || 0).toFixed(2)}`}
-                  theme={theme}
-                />
-                <StatCard
-                  icon={<Clock className="h-4 w-4" />}
-                  label="Total Time"
-                  value={formatDuration(stats?.totalDurationMs || 0)}
-                  theme={theme}
-                />
-              </div>
-            </section>
-
-            {/* Usage chart */}
-            <section>
-              <h2 className={cn("text-sm font-normal mb-4 flex items-center gap-2", t.textMuted)}>
-                <TrendingUp className="h-4 w-4" />
-                Token Usage (30 days)
-              </h2>
-              <div className={cn("p-4 rounded-lg border", t.bgCard, t.border)}>
-                <div className="h-48">
-                  <AreaChart
-                    data={(dailyStats || []).map((d) => ({
-                      label: d.date,
-                      value: d.totalTokens,
-                    }))}
-                    height={192}
-                    color={theme === "dark" ? "#3b82f6" : "#EB5601"}
-                  />
-                </div>
-                <div className={cn("flex justify-between mt-2 text-[10px]", t.textDim)}>
-                  <span>{dailyStats?.[0]?.date || ""}</span>
-                  <span>{dailyStats?.[dailyStats.length - 1]?.date || ""}</span>
-                </div>
-              </div>
-            </section>
-
-            {/* Daily breakdown */}
-            <section>
-              <h2 className={cn("text-sm font-normal mb-4", t.textMuted)}>Daily Activity</h2>
-              <div className={cn("p-4 rounded-lg border", t.bgCard, t.border)}>
-                <div className="h-32">
-                  <BarChart
-                    data={(dailyStats || []).slice(-14).map((d) => ({
-                      label: new Date(d.date).toLocaleDateString("en", { weekday: "short" }),
-                      value: d.sessions,
-                      color: theme === "dark" ? "bg-emerald-600" : "bg-[#EB5601]",
-                    }))}
-                    height={128}
-                    formatValue={(v) => `${v} sessions`}
-                  />
-                </div>
-              </div>
-            </section>
-
-            {/* Model usage */}
-            <section>
-              <h2 className={cn("text-sm font-normal mb-4 flex items-center gap-2", t.textMuted)}>
-                <Bot className="h-4 w-4" />
-                Usage by Model
-              </h2>
-              <div className={cn("p-4 rounded-lg border", t.bgCard, t.border)}>
-                <div className="flex flex-col lg:flex-row gap-6">
-                  {/* Donut chart */}
-                  <div className="flex justify-center">
-                    <DonutChart
-                      size={140}
-                      thickness={14}
-                      data={(modelStats || []).slice(0, 5).map((m, i) => ({
-                        label: m.model,
-                        value: m.totalTokens,
-                        color: theme === "dark" ? MODEL_COLORS[i % MODEL_COLORS.length] : TAN_MODEL_COLORS[i % TAN_MODEL_COLORS.length],
-                      }))}
-                    />
-                  </div>
-                  {/* Model list */}
-                  <div className="flex-1 space-y-3">
-                    {(modelStats || []).map((m, i) => (
-                      <div key={m.model} className="space-y-1">
-                        <div className="flex items-center justify-between">
-                          <span className={cn("flex items-center gap-2 text-sm", t.textSecondary)}>
-                            <span
-                              className="w-2 h-2 rounded-full"
-                              style={{ backgroundColor: theme === "dark" ? MODEL_COLORS[i % MODEL_COLORS.length] : TAN_MODEL_COLORS[i % TAN_MODEL_COLORS.length] }}
-                            />
-                            <span className="truncate max-w-[200px]">{m.model}</span>
-                          </span>
-                          <span className={cn("text-sm", t.textDim)}>{formatNumber(m.totalTokens)}</span>
-                        </div>
-                        <ProgressBar
-                          value={m.totalTokens}
-                          max={modelStats?.[0]?.totalTokens || 1}
-                          showPercentage={false}
-                          color={theme === "dark" ? `bg-[${MODEL_COLORS[i % MODEL_COLORS.length]}]` : `bg-[${TAN_MODEL_COLORS[i % TAN_MODEL_COLORS.length]}]`}
-                        />
-                        <div className={cn("flex justify-between text-[10px]", t.textDim)}>
-                          <span>{m.sessions} sessions</span>
-                          <span>${m.cost.toFixed(4)}</span>
-                        </div>
-                      </div>
-                    ))}
-                    {(!modelStats || modelStats.length === 0) && (
-                      <p className={cn("text-sm text-center py-4", t.textDim)}>No model data yet</p>
-                    )}
-                  </div>
-                </div>
-              </div>
-            </section>
-
-            {/* Projects */}
-            <section>
-              <h2 className={cn("text-sm font-normal mb-4 flex items-center gap-2", t.textMuted)}>
-                <Folder className="h-4 w-4" />
-                Usage by Project
-              </h2>
-              <div className={cn("rounded-lg border overflow-hidden", t.bgCard, t.border)}>
-                <table className="w-full">
-                  <thead>
-                    <tr className={cn("border-b text-[10px] uppercase tracking-wider", t.borderLight, t.textDim)}>
-                      <th className="px-4 py-2 text-left font-normal">Project</th>
-                      <th className="px-4 py-2 text-right font-normal">Sessions</th>
-                      <th className="px-4 py-2 text-right font-normal">Tokens</th>
-                      <th className="px-4 py-2 text-right font-normal">Cost</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {(projectStats || []).slice(0, 10).map((p) => (
-                      <tr key={p.project} className={cn("border-b", t.borderLight)}>
-                        <td className={cn("px-4 py-2.5 text-sm truncate max-w-[300px]", t.textSecondary)}>{p.project}</td>
-                        <td className={cn("px-4 py-2.5 text-sm text-right", t.textSubtle)}>{p.sessions}</td>
-                        <td className={cn("px-4 py-2.5 text-sm text-right", t.textSubtle)}>{formatNumber(p.totalTokens)}</td>
-                        <td className={cn("px-4 py-2.5 text-sm text-right", t.textSubtle)}>${p.cost.toFixed(4)}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-                {(!projectStats || projectStats.length === 0) && (
-                  <div className={cn("px-4 py-8 text-center text-sm", t.textDim)}>No project data yet</div>
-                )}
-              </div>
-            </section>
-          </div>
-        )}
-
         {/* API Tab */}
         {activeTab === "api" && (
           <div className="space-y-8">
@@ -326,18 +129,51 @@ export function SettingsPage() {
                 Plugin Setup
               </h2>
               <div className={cn("p-4 rounded-lg border", t.bgCard, t.border)}>
-                <p className={cn("text-sm mb-4", t.textSubtle)}>
-                  Configure the{" "}
-                  <a
-                    href="https://www.npmjs.com/package/opencode-sync-plugin"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className={cn("inline-flex items-center gap-1", theme === "dark" ? "text-blue-400 hover:text-blue-300" : "text-[#EB5601] hover:text-[#d14a01]")}
-                  >
-                    opencode-sync-plugin
-                    <ExternalLink className="h-3 w-3" />
-                  </a>
-                </p>
+                {/* Plugin links */}
+                <div className={cn("text-sm mb-4 space-y-2", t.textSubtle)}>
+                  <p>
+                    <a
+                      href="https://www.npmjs.com/package/opencode-sync-plugin"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={cn("inline-flex items-center gap-1 font-medium", theme === "dark" ? "text-blue-400 hover:text-blue-300" : "text-[#EB5601] hover:text-[#d14a01]")}
+                    >
+                      opencode-sync-plugin
+                      <ExternalLink className="h-3 w-3" />
+                    </a>
+                    {" "}<span className={t.textDim}>Sync your OpenCode sessions</span>
+                    {" "}
+                    <a
+                      href="https://github.com/waynesutton/opencode-sync-plugin"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={cn("text-xs", t.textDim, "hover:underline")}
+                    >
+                      (GitHub)
+                    </a>
+                  </p>
+                  <p>
+                    <a
+                      href="https://www.npmjs.com/package/claude-code-sync"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={cn("inline-flex items-center gap-1 font-medium", theme === "dark" ? "text-blue-400 hover:text-blue-300" : "text-[#EB5601] hover:text-[#d14a01]")}
+                    >
+                      claude-code-sync
+                      <ExternalLink className="h-3 w-3" />
+                    </a>
+                    {" "}<span className={t.textDim}>Sync your Claude Code sessions</span>
+                    {" "}
+                    <a
+                      href="https://github.com/waynesutton/claude-code-sync"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={cn("text-xs", t.textDim, "hover:underline")}
+                    >
+                      (GitHub)
+                    </a>
+                  </p>
+                </div>
 
                 {/* Convex URL */}
                 <div className="space-y-4">
@@ -392,9 +228,12 @@ export function SettingsPage() {
                 <div className={cn("mt-4 p-3 rounded border", t.bgSecondary, t.borderLight)}>
                   <p className={cn("text-xs font-normal mb-2", t.textMuted)}>Quick setup</p>
                   <div className={cn("space-y-1 text-xs font-mono", t.textSubtle)}>
+                    <p className={t.textDim}># For OpenCode</p>
                     <p>npm install -g opencode-sync-plugin</p>
                     <p>opencode-sync login</p>
-                    <p className={t.textDim}># Paste credentials when prompted</p>
+                    <p className={cn("mt-2", t.textDim)}># For Claude Code</p>
+                    <p>npm install -g claude-code-sync</p>
+                    <p>claude-code-sync login</p>
                   </div>
                 </div>
               </div>
@@ -407,8 +246,11 @@ export function SettingsPage() {
                 API Key Management
               </h2>
               <div className={cn("p-4 rounded-lg border", t.bgCard, t.border)}>
-                <p className={cn("text-sm mb-4", t.textSubtle)}>
+                <p className={cn("text-sm mb-2", t.textSubtle)}>
                   Generate an API key to access your sessions from external applications.
+                </p>
+                <p className={cn("text-xs mb-4", t.textDim)}>
+                  Use the same API key with both opencode-sync-plugin and claude-code-sync.
                 </p>
 
                 {currentUser?.hasApiKey || newApiKey ? (
@@ -554,30 +396,6 @@ export function SettingsPage() {
         cancelText="Cancel"
         variant="danger"
       />
-    </div>
-  );
-}
-
-// Stat card component
-function StatCard({
-  icon,
-  label,
-  value,
-  theme = "dark",
-}: {
-  icon: React.ReactNode;
-  label: string;
-  value: string;
-  theme?: "dark" | "tan";
-}) {
-  const t = getThemeClasses(theme);
-  return (
-    <div className={cn("p-4 rounded-lg border", t.bgCard, t.border)}>
-      <div className={cn("flex items-center gap-2 mb-2", t.textSubtle)}>
-        {icon}
-        <span className="text-xs">{label}</span>
-      </div>
-      <p className={cn("text-xl font-light", t.textPrimary)}>{value}</p>
     </div>
   );
 }

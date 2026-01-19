@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from "react";
-import { useQuery, useMutation } from "convex/react";
+import { useQuery, useMutation, useAction } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { Link } from "react-router-dom";
 import { useAuth } from "../lib/auth";
@@ -43,10 +43,12 @@ import {
   BarChart3,
   Github,
   FileDown,
+  CheckCircle2,
+  Loader2,
 } from "lucide-react";
 
 // View modes
-type ViewMode = "overview" | "sessions" | "analytics";
+type ViewMode = "overview" | "sessions" | "evals" | "analytics";
 type SortField = "updatedAt" | "createdAt" | "totalTokens" | "cost" | "durationMs";
 type SortOrder = "asc" | "desc";
 // Source filter type for filtering by plugin source
@@ -168,7 +170,7 @@ export function DashboardPage() {
 
         {/* View toggles */}
         <div className={cn("flex items-center gap-1 rounded-md p-0.5 border", t.bgToggle, t.border)}>
-          {(["overview", "sessions", "analytics"] as const).map((mode) => (
+          {(["overview", "sessions", "evals", "analytics"] as const).map((mode) => (
             <button
               key={mode}
               onClick={() => setViewMode(mode)}
@@ -313,6 +315,10 @@ export function DashboardPage() {
             onClearFilters={clearFilters}
             theme={theme}
           />
+        )}
+
+        {viewMode === "evals" && (
+          <EvalsView theme={theme} />
         )}
 
         {viewMode === "analytics" && (
@@ -601,6 +607,7 @@ function SessionsView({
   const t = getThemeClasses(theme);
   const deleteSession = useMutation(api.sessions.remove);
   const setVisibility = useMutation(api.sessions.setVisibility);
+  const setEvalReady = useMutation(api.evals.setEvalReady);
   const markdown = useQuery(
     api.sessions.getMarkdown,
     selectedSession?.session?._id ? { sessionId: selectedSession.session._id } : "skip"
@@ -611,6 +618,7 @@ function SessionsView({
   const [isExportingCSV, setIsExportingCSV] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [sessionToDelete, setSessionToDelete] = useState<Id<"sessions"> | null>(null);
+  const [isTogglingEval, setIsTogglingEval] = useState(false);
 
   // CSV export handler
   const handleExportCSV = () => {
@@ -940,6 +948,30 @@ function SessionsView({
                   <ExternalLink className="h-3.5 w-3.5" />
                 </a>
               )}
+              {/* Eval-ready toggle */}
+              <button
+                onClick={async () => {
+                  setIsTogglingEval(true);
+                  try {
+                    await setEvalReady({
+                      sessionId: selectedSession.session._id,
+                      evalReady: !selectedSession.session.evalReady,
+                    });
+                  } finally {
+                    setIsTogglingEval(false);
+                  }
+                }}
+                disabled={isTogglingEval}
+                className={cn(
+                  "p-1.5 rounded transition-colors",
+                  selectedSession.session.evalReady ? "text-emerald-500" : t.textSubtle,
+                  isTogglingEval ? "opacity-50" : "",
+                  t.bgHover
+                )}
+                title={selectedSession.session.evalReady ? "Remove from Evals" : "Add to Evals"}
+              >
+                <CheckCircle2 className={cn("h-3.5 w-3.5", isTogglingEval && "animate-pulse")} />
+              </button>
               <button
                 onClick={() => {
                   setSessionToDelete(selectedSession.session._id);
@@ -1184,6 +1216,457 @@ function TimelineView({
           Drag to scroll
         </span>
       </div>
+    </div>
+  );
+}
+
+// Export format type for evals
+type ExportFormat = "deepeval" | "openai" | "filesystem";
+
+// Evals View - Evaluation sessions and export
+function EvalsView({ theme }: { theme: "dark" | "tan" }) {
+  const t = getThemeClasses(theme);
+  const isDark = theme === "dark";
+
+  // State
+  const [sourceFilter, setSourceFilter] = useState<string | undefined>();
+  const [tagFilter, setTagFilter] = useState<string | undefined>();
+  const [selectedSessions, setSelectedSessions] = useState<Set<Id<"sessions">>>(new Set());
+  const [showExportModal, setShowExportModal] = useState(false);
+  const [exportFormat, setExportFormat] = useState<ExportFormat>("deepeval");
+  const [exportOptions, setExportOptions] = useState({
+    includeSystemPrompts: false,
+    includeToolCalls: true,
+    anonymizePaths: true,
+  });
+  const [isExporting, setIsExporting] = useState(false);
+  const setEvalReady = useMutation(api.evals.setEvalReady);
+
+  // Queries
+  const evalData = useQuery(api.evals.listEvalSessions, {
+    source: sourceFilter,
+    tags: tagFilter ? [tagFilter] : undefined,
+  });
+  const allTags = useQuery(api.evals.getEvalTags);
+  const generateExport = useAction(api.evals.generateEvalExport);
+
+  // Computed
+  const sessions = evalData?.sessions || [];
+  const stats = evalData?.stats || { total: 0, bySource: { opencode: 0, claudeCode: 0 }, totalTestCases: 0 };
+  const hasActiveFilters = sourceFilter || tagFilter;
+
+  // Handlers
+  const handleSelectAll = () => {
+    if (selectedSessions.size === sessions.length) {
+      setSelectedSessions(new Set());
+    } else {
+      setSelectedSessions(new Set(sessions.map((s) => s._id)));
+    }
+  };
+
+  const handleToggleSession = (sessionId: Id<"sessions">) => {
+    const newSet = new Set(selectedSessions);
+    if (newSet.has(sessionId)) {
+      newSet.delete(sessionId);
+    } else {
+      newSet.add(sessionId);
+    }
+    setSelectedSessions(newSet);
+  };
+
+  const handleExport = async () => {
+    if (sessions.length === 0) return;
+    
+    setIsExporting(true);
+    try {
+      const sessionIds = selectedSessions.size > 0 
+        ? Array.from(selectedSessions) 
+        : "all" as const;
+      
+      const result = await generateExport({
+        sessionIds,
+        format: exportFormat,
+        options: exportOptions,
+      });
+
+      // Download the file
+      const blob = new Blob([result.data], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = result.filename;
+      a.click();
+      URL.revokeObjectURL(url);
+      
+      setShowExportModal(false);
+    } catch (error) {
+      console.error("Export failed:", error);
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
+  const clearFilters = () => {
+    setSourceFilter(undefined);
+    setTagFilter(undefined);
+  };
+
+  // Source badge inline component
+  const SourceBadge = ({ source }: { source?: string }) => {
+    const isClaudeCode = source === "claude-code";
+    return (
+      <span
+        className={cn(
+          "inline-flex items-center px-1.5 py-0.5 text-[10px] font-medium rounded",
+          isClaudeCode
+            ? isDark ? "bg-orange-500/20 text-orange-400" : "bg-orange-100 text-orange-700"
+            : isDark ? "bg-blue-500/20 text-blue-400" : "bg-blue-100 text-blue-700"
+        )}
+      >
+        {isClaudeCode ? "CC" : "OC"}
+      </span>
+    );
+  };
+
+  // Tag badge inline component
+  const TagBadge = ({ tag }: { tag: string }) => (
+    <span
+      className={cn(
+        "inline-flex items-center px-1.5 py-0.5 text-[10px] font-medium rounded",
+        isDark ? "bg-zinc-700 text-zinc-300" : "bg-[#ebe9e6] text-[#6b6b6b]"
+      )}
+    >
+      {tag}
+    </span>
+  );
+
+  return (
+    <div className="h-full overflow-auto p-6">
+      <div className="max-w-6xl mx-auto space-y-6">
+        {/* Stats cards */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <StatCard label="Eval Sessions" value={stats.total} theme={theme} />
+          <StatCard label="Test Cases" value={stats.totalTestCases} theme={theme} />
+          <StatCard label="OpenCode" value={stats.bySource.opencode} theme={theme} />
+          <StatCard label="Claude Code" value={stats.bySource.claudeCode} theme={theme} />
+        </div>
+
+        {/* Filters and actions bar */}
+        <div className={cn("flex items-center justify-between p-3 rounded-lg border", t.bgCard, t.border)}>
+          <div className="flex items-center gap-2">
+            {/* Source filter */}
+            <select
+              value={sourceFilter || ""}
+              onChange={(e) => setSourceFilter(e.target.value || undefined)}
+              className={cn("text-xs px-2 py-1.5 rounded border", t.bgInput, t.border, t.textPrimary)}
+            >
+              <option value="">All Sources</option>
+              <option value="opencode">OpenCode</option>
+              <option value="claude-code">Claude Code</option>
+            </select>
+
+            {/* Tag filter */}
+            {allTags && allTags.length > 0 && (
+              <select
+                value={tagFilter || ""}
+                onChange={(e) => setTagFilter(e.target.value || undefined)}
+                className={cn("text-xs px-2 py-1.5 rounded border", t.bgInput, t.border, t.textPrimary)}
+              >
+                <option value="">All Tags</option>
+                {allTags.map((tag) => (
+                  <option key={tag} value={tag}>{tag}</option>
+                ))}
+              </select>
+            )}
+
+            {hasActiveFilters && (
+              <button
+                onClick={clearFilters}
+                className={cn("text-xs flex items-center gap-1", t.textSubtle, "hover:opacity-80")}
+              >
+                <X className="h-3 w-3" />
+                Clear
+              </button>
+            )}
+          </div>
+
+          <div className="flex items-center gap-2">
+            {/* Select all */}
+            {sessions.length > 0 && (
+              <button
+                onClick={handleSelectAll}
+                className={cn("text-xs px-2 py-1.5 rounded border", t.bgInput, t.border, t.textSubtle)}
+              >
+                {selectedSessions.size === sessions.length ? "Deselect All" : "Select All"}
+              </button>
+            )}
+
+            {/* Export button */}
+            <button
+              onClick={() => setShowExportModal(true)}
+              disabled={sessions.length === 0}
+              className={cn(
+                "flex items-center gap-1.5 px-3 py-1.5 text-xs rounded font-medium transition-colors",
+                sessions.length === 0
+                  ? "opacity-50 cursor-not-allowed"
+                  : "",
+                isDark
+                  ? "bg-emerald-600 text-white hover:bg-emerald-500"
+                  : "bg-[#EB5601] text-white hover:bg-[#d14d01]"
+              )}
+            >
+              <FileDown className="h-3.5 w-3.5" />
+              Export for Evals
+              {selectedSessions.size > 0 && ` (${selectedSessions.size})`}
+            </button>
+          </div>
+        </div>
+
+        {/* Sessions list */}
+        {sessions.length === 0 ? (
+          <div className={cn("text-center py-16 rounded-lg border", t.bgCard, t.border)}>
+            <CheckCircle2 className={cn("h-12 w-12 mx-auto mb-4", t.textDim)} />
+            <h3 className={cn("text-lg font-medium mb-2", t.textPrimary)}>No Eval-Ready Sessions</h3>
+            <p className={cn("text-sm max-w-md mx-auto", t.textMuted)}>
+              Mark sessions as eval-ready from the Sessions view to add them here for export.
+            </p>
+          </div>
+        ) : (
+          <div className={cn("rounded-lg border overflow-hidden", t.bgCard, t.border)}>
+            <div className={cn("overflow-x-auto")}>
+              <table className="w-full">
+                <thead>
+                  <tr className={cn("border-b text-left", t.border)}>
+                    <th className={cn("px-4 py-3 text-xs font-medium w-10", t.textMuted)}></th>
+                    <th className={cn("px-4 py-3 text-xs font-medium", t.textMuted)}>Session</th>
+                    <th className={cn("px-4 py-3 text-xs font-medium", t.textMuted)}>Source</th>
+                    <th className={cn("px-4 py-3 text-xs font-medium", t.textMuted)}>Model</th>
+                    <th className={cn("px-4 py-3 text-xs font-medium", t.textMuted)}>Messages</th>
+                    <th className={cn("px-4 py-3 text-xs font-medium", t.textMuted)}>Tags</th>
+                    <th className={cn("px-4 py-3 text-xs font-medium", t.textMuted)}>Reviewed</th>
+                    <th className={cn("px-4 py-3 text-xs font-medium w-10", t.textMuted)}></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {sessions.map((session) => (
+                    <tr
+                      key={session._id}
+                      className={cn(
+                        "border-b transition-colors",
+                        t.border,
+                        selectedSessions.has(session._id) ? (isDark ? "bg-zinc-800/50" : "bg-[#f5f3f0]") : t.bgHover
+                      )}
+                    >
+                      <td className="px-4 py-3">
+                        <input
+                          type="checkbox"
+                          checked={selectedSessions.has(session._id)}
+                          onChange={() => handleToggleSession(session._id)}
+                          className="h-4 w-4 rounded border-gray-300"
+                        />
+                      </td>
+                      <td className="px-4 py-3">
+                        <div className="flex items-center gap-2">
+                          <Folder className={cn("h-3.5 w-3.5 flex-shrink-0", t.textDim)} />
+                          <div className="min-w-0">
+                            <p className={cn("text-sm truncate", t.textPrimary)}>
+                              {session.title || session.externalId.slice(0, 8)}
+                            </p>
+                            <p className={cn("text-xs truncate", t.textDim)}>
+                              {session.projectPath || "Unknown project"}
+                            </p>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-4 py-3">
+                        <SourceBadge source={session.source} />
+                      </td>
+                      <td className="px-4 py-3">
+                        <span className={cn("text-xs", t.textMuted)}>{session.model || "Unknown"}</span>
+                      </td>
+                      <td className="px-4 py-3">
+                        <span className={cn("text-xs", t.textMuted)}>{session.messageCount}</span>
+                      </td>
+                      <td className="px-4 py-3">
+                        <div className="flex items-center gap-1 flex-wrap">
+                          {session.evalTags?.slice(0, 2).map((tag) => (
+                            <TagBadge key={tag} tag={tag} />
+                          ))}
+                          {(session.evalTags?.length || 0) > 2 && (
+                            <span className={cn("text-[10px]", t.textDim)}>
+                              +{session.evalTags!.length - 2}
+                            </span>
+                          )}
+                        </div>
+                      </td>
+                      <td className="px-4 py-3">
+                        <span className={cn("text-xs", t.textMuted)}>
+                          {session.reviewedAt
+                            ? new Date(session.reviewedAt).toLocaleDateString()
+                            : "-"}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3">
+                        <button
+                          onClick={async () => {
+                            await setEvalReady({
+                              sessionId: session._id,
+                              evalReady: false,
+                            });
+                          }}
+                          className={cn("p-1 rounded hover:bg-red-500/20 text-red-400")}
+                          title="Remove from evals"
+                        >
+                          <X className="h-3.5 w-3.5" />
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Export Modal */}
+      {showExportModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50">
+          <div className={cn("w-full max-w-md rounded-lg border shadow-xl", t.bgPrimary, t.border)}>
+            <div className={cn("flex items-center justify-between px-4 py-3 border-b", t.border)}>
+              <h2 className={cn("text-sm font-medium", t.textPrimary)}>Export for Evals</h2>
+              <button
+                onClick={() => setShowExportModal(false)}
+                className={cn("p-1 rounded", t.textSubtle, t.bgHover)}
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+
+            <div className="p-4 space-y-4">
+              {/* Format selection */}
+              <div>
+                <label className={cn("block text-xs font-medium mb-2", t.textMuted)}>
+                  Export Format
+                </label>
+                <div className="grid grid-cols-3 gap-2">
+                  {([
+                    { id: "deepeval", label: "DeepEval", desc: "JSON" },
+                    { id: "openai", label: "OpenAI", desc: "JSONL" },
+                    { id: "filesystem", label: "Files", desc: "Plain Text" },
+                  ] as const).map((format) => (
+                    <button
+                      key={format.id}
+                      onClick={() => setExportFormat(format.id)}
+                      className={cn(
+                        "p-3 rounded border text-left transition-colors",
+                        exportFormat === format.id
+                          ? isDark
+                            ? "border-emerald-500 bg-emerald-500/10"
+                            : "border-[#EB5601] bg-[#EB5601]/10"
+                          : cn(t.border, t.bgHover)
+                      )}
+                    >
+                      <p className={cn("text-sm font-medium", t.textPrimary)}>{format.label}</p>
+                      <p className={cn("text-[10px]", t.textDim)}>{format.desc}</p>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Options */}
+              <div className="space-y-2">
+                <label className={cn("block text-xs font-medium mb-2", t.textMuted)}>
+                  Options
+                </label>
+                <label className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    checked={exportOptions.includeSystemPrompts}
+                    onChange={(e) =>
+                      setExportOptions((prev) => ({
+                        ...prev,
+                        includeSystemPrompts: e.target.checked,
+                      }))
+                    }
+                    className="h-4 w-4 rounded border-gray-300"
+                  />
+                  <span className={cn("text-xs", t.textSecondary)}>Include system prompts</span>
+                </label>
+                <label className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    checked={exportOptions.includeToolCalls}
+                    onChange={(e) =>
+                      setExportOptions((prev) => ({
+                        ...prev,
+                        includeToolCalls: e.target.checked,
+                      }))
+                    }
+                    className="h-4 w-4 rounded border-gray-300"
+                  />
+                  <span className={cn("text-xs", t.textSecondary)}>Include tool calls in context</span>
+                </label>
+                <label className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    checked={exportOptions.anonymizePaths}
+                    onChange={(e) =>
+                      setExportOptions((prev) => ({
+                        ...prev,
+                        anonymizePaths: e.target.checked,
+                      }))
+                    }
+                    className="h-4 w-4 rounded border-gray-300"
+                  />
+                  <span className={cn("text-xs", t.textSecondary)}>Anonymize file paths</span>
+                </label>
+              </div>
+
+              {/* Summary */}
+              <div className={cn("p-3 rounded border text-xs", t.bgCard, t.border)}>
+                <p className={t.textMuted}>
+                  {selectedSessions.size > 0
+                    ? `Export ${selectedSessions.size} selected session${selectedSessions.size > 1 ? "s" : ""}`
+                    : `Export all ${sessions.length} eval-ready session${sessions.length > 1 ? "s" : ""}`}
+                </p>
+              </div>
+            </div>
+
+            <div className={cn("flex items-center justify-end gap-2 px-4 py-3 border-t", t.border)}>
+              <button
+                onClick={() => setShowExportModal(false)}
+                className={cn("px-3 py-1.5 text-xs rounded", t.textSubtle, t.bgHover)}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleExport}
+                disabled={isExporting}
+                className={cn(
+                  "flex items-center gap-1.5 px-3 py-1.5 text-xs rounded font-medium",
+                  isExporting ? "opacity-50" : "",
+                  isDark
+                    ? "bg-emerald-600 text-white hover:bg-emerald-500"
+                    : "bg-[#EB5601] text-white hover:bg-[#d14d01]"
+                )}
+              >
+                {isExporting ? (
+                  <>
+                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                    Exporting...
+                  </>
+                ) : (
+                  <>
+                    <Download className="h-3.5 w-3.5" />
+                    Export
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

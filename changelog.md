@@ -8,6 +8,15 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Added
 
+- Evals tab in Dashboard with eval-ready session list, stats, and export modal
+- Evals backend (convex/evals.ts): setEvalReady, listEvalSessions, getEvalTags, generateEvalExport
+- Export formats for evals: DeepEval JSON, OpenAI Evals JSONL, Filesystem plain text
+- evalReady, reviewedAt, evalNotes, evalTags fields added to sessions schema
+- Eval toggle button in session detail panel to mark sessions as eval-ready
+- Message-level embeddings table (messageEmbeddings) with vector index for finer-grained retrieval
+- semanticSearchMessages and hybridSearchMessages actions in search.ts
+- Batch embedding generation for messages (batchGenerateForSession, batchGenerateMessagesForUser)
+- Session sync timeout in ProtectedRoute (5s max) with redirect to login on failure
 - Source field added to sessions schema to distinguish OpenCode vs Claude Code sessions
 - Source dropdown filter in dashboard header (All Sources / OpenCode / Claude Code)
 - All analytics queries now support source filtering for multi-plugin support
@@ -45,11 +54,10 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Fixed
 
-- Fixed session logout on page refresh by adding proper WorkOS AuthKit callback handling
-- Added onRedirectCallback to clean up OAuth params after authentication
-- Added devMode configuration for development environment
-- Improved auth state sync between WorkOS and Convex with token refresh on session rehydration
-- Added loading state for session sync in ProtectedRoute to prevent premature redirects
+- Fixed session persistence on page refresh with improved token refresh logic and retry mechanism
+- Auth sync now retries up to 3 times with proper state management to prevent infinite loops
+- Added 5-second timeout on session sync in ProtectedRoute to prevent stuck loading states
+- Removed devMode dependency for session persistence (works in both dev and production)
 - Fixed Tokens/Cost/Duration table header alignment in sessions view
 - Fixed markdown download with sanitized filenames and date timestamps
 - Added loading state to download button when markdown is being fetched

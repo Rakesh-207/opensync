@@ -212,6 +212,26 @@ claude-code-sync/        # Separate repo - Python plugin for Claude Code
 - [Features PRD](docs/PRD-FEATURES.md) - Future feature specifications
 - `/docs` route in the web app provides interactive API documentation
 
+## OpenSync ecosystem
+
+Cloud synced dashboards that track session activity, tool usage, and token spend across projects.
+
+| Project | Description | Links |
+|---------|-------------|-------|
+| **OpenSync** | Dashboards for OpenCode and Claude coding sessions | [Website](https://www.opensync.dev/) / [GitHub](https://github.com/waynesutton/opensync) |
+| **opencode-sync-plugin** | Sync your OpenCode sessions to OpenSync | [GitHub](https://github.com/waynesutton/opencode-sync-plugin) / [npm](https://www.npmjs.com/package/opencode-sync-plugin) |
+| **claude-code-sync** | Sync your Claude Code sessions to OpenSync | [GitHub](https://github.com/waynesutton/claude-code-sync) / [npm](https://www.npmjs.com/package/claude-code-sync) |
+
+### Install the plugins
+
+```bash
+# For OpenCode
+npm install -g opencode-sync-plugin
+
+# For Claude Code
+npm install -g claude-code-sync
+```
+
 ## Tech Stack
 
 - **Backend**: [Convex](https://convex.dev) - Real-time database with built-in search

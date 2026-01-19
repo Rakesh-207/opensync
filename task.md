@@ -6,9 +6,14 @@ OpenSync supports two AI coding tools: **OpenCode** and **Claude Code**.
 
 ## Active Tasks
 
-- [ ] Fix filter UI alignment
-- [ ] Add API rename and Claude API config
-- [ ] Notifications UI match existing design system
+- [x] Fix filter UI alignment
+- [x] Add API rename and Claude API config
+- [x] Notifications UI match existing design
+- [ ] Dedicated context search page (/context) system
+- [ ] update docs
+- [ ] Delete user data and profile option
+- [ ] Search results highlighting
+- [ ] Pagination for large session lists
 
 ## Completed
 
@@ -66,6 +71,7 @@ OpenSync supports two AI coding tools: **OpenCode** and **Claude Code**.
 - [x] Fixed markdown export to include message content (textContent fallback)
 - [x] Privacy messaging on login page ("Private - your data stays in your account")
 - [x] Removed EnvStatus debug component from login footer
+- [x] Fixed session persistence on page refresh with retry mechanism and timeout handling
 - [x] ConfirmModal component for themed confirmation dialogs
 - [x] Session delete confirmation modal (replaces browser confirm())
 - [x] Fixed StackedBarChart height rendering for proper bar display
@@ -78,6 +84,8 @@ OpenSync supports two AI coding tools: **OpenCode** and **Claude Code**.
 - [x] sourceStats query for session distribution by source
 - [x] messages.upsert accepts source param for auto-created sessions
 - [x] CSV export includes Source column and exports all sessions
+- [x] Evals tab integrated into Dashboard (Overview, Sessions, Evals, Analytics)
+- [x] Session sync timeout in ProtectedRoute (5s max, redirects to login on failure)
 
 ## In Progress
 
@@ -106,24 +114,24 @@ None currently.
 
 ### High Priority (Core)
 
-- [ ] Search results highlighting
-- [ ] Pagination for large session lists
+
 - [x] Source filtering in session list (OpenCode / Claude Code / All)
 
 ### Medium Priority (Sync for Evals)
 
 See [SYNC-FOR-EVALS-PRD.md](docs/SYNC-FOR-EVALS-PRD.md) for full specification.
 
-- [ ] Schema: Add evalReady, reviewedAt, evalNotes, evalTags fields
-- [ ] EvalReadyToggle component in session detail
-- [ ] Evals page with eval-ready session list
-- [ ] EvalExportModal with format selection
-- [ ] Export formats:
-  - [ ] DeepEval JSON
-  - [ ] OpenAI Evals JSONL
-  - [ ] Filesystem (plain text files)
-- [ ] WhatsNextPanel with copy-paste commands
-- [ ] convex/evals.ts functions
+- [x] Schema: Add evalReady, reviewedAt, evalNotes, evalTags fields
+- [x] EvalReadyToggle component in session detail
+- [x] Evals page with eval-ready session list
+- [x] EvalExportModal with format selection
+- [x] Export formats:
+  - [x] DeepEval JSON
+  - [x] OpenAI Evals JSONL
+  - [x] Filesystem (plain text files)
+- [ ] WhatsNextPanel with copy-paste commands (future enhancement)
+- [x] convex/evals.ts functions
+- [x] Message-level embeddings (messageEmbeddings table with vector index)
 
 ### Medium Priority (RAG Context Library)
 

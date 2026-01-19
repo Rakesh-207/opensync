@@ -11,6 +11,7 @@
 import type * as analytics from "../analytics.js";
 import type * as api_ from "../api.js";
 import type * as embeddings from "../embeddings.js";
+import type * as evals from "../evals.js";
 import type * as http from "../http.js";
 import type * as messages from "../messages.js";
 import type * as rag from "../rag.js";
@@ -28,6 +29,7 @@ declare const fullApi: ApiFromModules<{
   analytics: typeof analytics;
   api: typeof api_;
   embeddings: typeof embeddings;
+  evals: typeof evals;
   http: typeof http;
   messages: typeof messages;
   rag: typeof rag;
