@@ -51,50 +51,45 @@ export function LoginPage() {
       <div className="pointer-events-none fixed inset-0 bg-[radial-gradient(ellipse_at_top,_rgba(255,255,255,0.02),_transparent_50%)]" />
 
       <div className="relative mx-auto flex min-h-screen max-w-6xl flex-col px-6 py-8">
-        {/* Header */}
-        <header className="flex items-center justify-center gap-8">
-          <span className="text-sm font-medium text-zinc-400">opensync</span>
-          <a
-            href="/docs"
-            className="text-sm text-zinc-500 transition-colors hover:text-zinc-300"
-          >
-            docs
-          </a>
-        </header>
-
         {/* Main content */}
-        <main className="mt-12 flex flex-1 items-center">
+        <main className="flex flex-1 items-center">
           <div className="grid w-full gap-12 lg:grid-cols-2 lg:gap-16">
             {/* Left side: ASCII logo and text */}
             <div className="flex flex-col justify-center">
               {/* ASCII Logo */}
-              <pre className="hidden overflow-x-auto text-[7px] leading-tight text-zinc-500 sm:block md:text-[9px]">
+              <pre className="overflow-x-auto text-[7px] leading-tight text-zinc-500 md:text-[9px]">
                 {ASCII_LOGO}
               </pre>
-              <h1 className="text-2xl font-semibold sm:hidden">OpenSync</h1>
 
               {/* Tagline */}
-              <p className="mt-6 text-sm text-zinc-400 sm:text-base">
-                Sync, search, and share your OpenCode and Claude Code sessions.
+              <h2 className="mt-6 text-lg font-medium text-zinc-200 sm:text-xl">
+                Dashboards for OpenCode and Claude coding sessions
+              </h2>
+              <p className="mt-2 text-sm text-zinc-300 sm:text-base">
+                Cloud-synced dashboards that track session activity, tool usage, and token spend across projects.
               </p>
 
-              {/* Feature list */}
+              {/* Feature list - colors from VSCode TypeScript theme */}
               <div className="mt-6 space-y-2 text-sm text-zinc-500">
                 <p>
-                  <span className="text-zinc-400">Sync</span> sessions from CLI
+                  <span className="text-[#c586c0] font-mono">Sync</span> sessions from CLI
                   to cloud
                 </p>
                 <p>
-                  <span className="text-zinc-400">Search</span> with full text
+                  <span className="text-[#dcdcaa] font-mono">Search</span> with full text
                   and semantic lookup
                 </p>
                 <p>
-                  <span className="text-zinc-400">Share</span> public links in
+                  <span className="text-sky-400 font-mono">Share</span> public links in
                   one click
                 </p>
                 <p>
-                  <span className="text-zinc-400">Private</span> your data stays
+                  <span className="text-[#ce9178] font-mono">Private</span> your data stays
                   in your account
+                </p>
+                <p>
+                  <span className="text-[#9cdcfe] font-mono">Export</span> sessions for
+                  evals in DeepEval, OpenAI, or plain text
                 </p>
               </div>
 
@@ -125,12 +120,20 @@ export function LoginPage() {
                   </div>
                 </div>
               ) : (
-                <button
-                  onClick={signIn}
-                  className="mt-8 w-fit rounded-md border border-zinc-700 bg-[#0E0E0E] px-6 py-2.5 text-sm font-medium text-zinc-100 transition-colors hover:border-zinc-600 hover:bg-zinc-900"
-                >
-                  Sign in
-                </button>
+                <div className="mt-8 flex gap-3">
+                  <button
+                    onClick={signIn}
+                    className="w-fit rounded-md border border-zinc-700 bg-[#0E0E0E] px-6 py-2.5 text-sm font-medium text-zinc-100 transition-colors hover:border-zinc-600 hover:bg-zinc-900"
+                  >
+                    Sign in
+                  </button>
+                  <a
+                    href="/docs"
+                    className="w-fit rounded-md border border-zinc-700 bg-[#0E0E0E] px-6 py-2.5 text-sm font-medium text-zinc-100 transition-colors hover:border-zinc-600 hover:bg-zinc-900"
+                  >
+                    Docs
+                  </a>
+                </div>
               )}
 
               {/* Export formats */}

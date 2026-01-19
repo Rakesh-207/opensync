@@ -190,25 +190,33 @@ export function DashboardPage() {
         <div className="flex-1" />
 
         {/* Search */}
-        <div className="w-64">
-          <div className="relative">
-            <Search className={cn("absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5", t.iconMuted)} />
-            <input
-              ref={searchInputRef}
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search sessions..."
-              className={cn(
-                "w-full h-8 pl-9 pr-16 rounded-md border text-sm focus:outline-none transition-colors",
-                t.bgInput, t.borderInput, t.textSecondary, t.textPlaceholder, t.borderFocus
-              )}
-            />
-            <div className={cn("absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-0.5 pointer-events-none", t.iconMuted)}>
-              <Command className="h-3 w-3" />
-              <span className="text-[10px]">K</span>
+        <div className="flex items-center gap-3">
+          <div className="w-64">
+            <div className="relative">
+              <Search className={cn("absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5", t.iconMuted)} />
+              <input
+                ref={searchInputRef}
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search sessions..."
+                className={cn(
+                  "w-full h-8 pl-9 pr-16 rounded-md border text-sm focus:outline-none transition-colors",
+                  t.bgInput, t.borderInput, t.textSecondary, t.textPlaceholder, t.borderFocus
+                )}
+              />
+              <div className={cn("absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-0.5 pointer-events-none", t.iconMuted)}>
+                <Command className="h-3 w-3" />
+                <span className="text-[10px]">K</span>
+              </div>
             </div>
           </div>
+          <Link
+            to="/docs"
+            className={cn("text-xs transition-colors", t.textSubtle, "hover:opacity-80")}
+          >
+            Docs
+          </Link>
         </div>
 
         {/* Right nav */}
