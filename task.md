@@ -4,12 +4,13 @@ Current development tasks and feature backlog for OpenSync.
 
 OpenSync supports two AI coding tools: **OpenCode** and **Claude Code**.
 
-- fix filter ui
-- add api rename and add claude api config
-- workos login fix
-- add claude code plugin
-- notifications matches the ui
-- small footer
+## Active Tasks
+
+- [ ] Fix filter UI alignment
+- [ ] Add API rename and Claude API config
+- [ ] Add claude-code-sync plugin
+- [ ] Notifications UI match existing design system
+- [ ] Smaller footer design
 
 ## Completed
 
@@ -53,6 +54,9 @@ OpenSync supports two AI coding tools: **OpenCode** and **Claude Code**.
 - [x] Extended project analytics table with full token breakdown and duration
 - [x] Removed Daily Activity chart from Analytics (replaced with detailed metrics)
 - [x] Projects Overview filtering (search, min sessions, min tokens) with sortable columns
+- [x] WorkOS login fix: session persistence across page refresh with proper callback handling
+- [x] Plugin Setup section in Settings with Convex URL and API Key display
+- [x] WORKOS-AUTH.md documentation for auth architecture
 
 ## In Progress
 

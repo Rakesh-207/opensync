@@ -21,6 +21,11 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Fixed
 
+- Fixed session logout on page refresh by adding proper WorkOS AuthKit callback handling
+- Added onRedirectCallback to clean up OAuth params after authentication
+- Added devMode configuration for development environment
+- Improved auth state sync between WorkOS and Convex with token refresh on session rehydration
+- Added loading state for session sync in ProtectedRoute to prevent premature redirects
 - Fixed Tokens/Cost/Duration table header alignment in sessions view
 - Fixed markdown download with sanitized filenames and date timestamps
 - Added loading state to download button when markdown is being fetched
@@ -49,8 +54,12 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Added Plugin Setup section to Settings page with Convex URL and API Key display
 - Users can now copy both credentials needed for opencode-sync-plugin directly from Settings
 - Added show/hide toggle for API key in Plugin Setup section
+- Updated plugin authentication to use API Keys (`osk_*`) instead of WorkOS OAuth
+- Both opencode-sync-plugin and claude-code-sync now use simple CLI login with Convex URL and API Key
+- Plugins accept both `.convex.cloud` and `.convex.site` URL formats
+- No browser authentication required for plugins
 
-### Fixed
+### Fixed (Build and Deployment)
 
 - Fixed "Session not found" error when messages sync before their sessions (auto-creates session)
 - Fixed Netlify build errors for TypeScript compilation
@@ -68,22 +77,12 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Documentation
 
 - Added NETLIFY-WORKOS-DEPLOYMENT.md with full deployment troubleshooting guide
-
-### Changed
-
-- Updated plugin authentication to use API Keys (`osk_*`) instead of WorkOS OAuth
-- Both opencode-sync-plugin and claude-code-sync now use simple CLI login with Convex URL and API Key
-- Plugins accept both `.convex.cloud` and `.convex.site` URL formats
-- No browser authentication required for plugins
-
-### Documentation
-
+- Added WORKOS-AUTH.md with WorkOS AuthKit integration architecture and security model
 - Added PLUGIN-AUTH-PRD.md with full authentication specification
 - Updated README.md with new plugin auth flow and architecture diagram
 - Updated OPENCODE-PLUGIN.md with API Key authentication instructions
 - Updated CLAUDE-CODE-PLUGIN.md with API Key authentication and CLI commands
 - Updated SETUP.md Step 9 and data flow diagram for API Key auth
-- Updated files.md and task.md with plugin auth references
 
 ## [0.1.0] - 2026-01-17
 

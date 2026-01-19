@@ -70,7 +70,7 @@ React frontend application.
 
 | File | Description |
 |------|-------------|
-| `auth.tsx` | Auth wrapper for WorkOS AuthKit with useAuth hook |
+| `auth.tsx` | Auth wrapper for WorkOS AuthKit with useAuth hook, session rehydration, and token refresh handling |
 | `utils.ts` | Utility functions (cn for classnames) |
 | `theme.tsx` | Theme context and hook for dark/tan mode toggle with color palette definitions |
 

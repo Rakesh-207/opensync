@@ -9,16 +9,34 @@ import { SettingsPage } from "./pages/Settings";
 import { Loader2, ArrowLeft } from "lucide-react";
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
-  const { isLoading, isAuthenticated } = useAuth();
+  const { isLoading, isAuthenticated, user } = useAuth();
 
+  // Show loading while auth state is being determined
   if (isLoading) {
     return (
       <div className="min-h-screen bg-[#0E0E0E] flex items-center justify-center">
-        <Loader2 className="h-6 w-6 animate-spin text-zinc-500" />
+        <div className="text-center">
+          <Loader2 className="h-6 w-6 animate-spin text-zinc-500 mx-auto" />
+          <p className="mt-2 text-xs text-zinc-600">Loading...</p>
+        </div>
       </div>
     );
   }
 
+  // If we have a WorkOS user but Convex isn't authenticated yet, show loading
+  // This handles the brief window during session rehydration
+  if (user && !isAuthenticated) {
+    return (
+      <div className="min-h-screen bg-[#0E0E0E] flex items-center justify-center">
+        <div className="text-center">
+          <Loader2 className="h-6 w-6 animate-spin text-zinc-500 mx-auto" />
+          <p className="mt-2 text-xs text-zinc-600">Syncing session...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Not authenticated and no user - redirect to login
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
   }
