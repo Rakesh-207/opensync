@@ -8,6 +8,11 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Added
 
+- Watch the demo link on Login page CTA section (links to X demo video)
+- 100% local deployment instructions in OPENSYNC-SETUP.md docs (Convex local backend with Docker)
+- 100% local deployment section in Docs page (/docs#requirements-local) with step-by-step instructions
+- Links to opencode.ai and claude.ai in Docs page hero and plugin sections
+- Trust message on Login page now mentions cloud version and links to local docs (/docs#requirements)
 - install.md file for AI agent installation following installmd.org spec (self-hosting setup instructions)
 - Collapsible Profile section in Settings page (collapsed by default for privacy during demos/recordings)
 - Theme toggle (dark/tan mode) on public session page (/s/:slug)

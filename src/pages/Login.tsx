@@ -164,7 +164,7 @@ export function LoginPage() {
                   </div>
                 </div>
               ) : (
-                <div className="mt-8 flex gap-3">
+                <div className="mt-8 flex flex-wrap gap-3">
                   <button
                     onClick={signIn}
                     className={`w-fit rounded-md border px-6 py-2.5 text-sm font-medium transition-colors ${
@@ -185,6 +185,18 @@ export function LoginPage() {
                   >
                     Docs
                   </a>
+                  <a
+                    href="https://x.com/waynesutton/status/2013373368117141745?s=20"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={`w-fit rounded-md border px-6 py-2.5 text-sm font-medium transition-colors ${
+                      isDark
+                        ? "border-zinc-700 bg-[#0E0E0E] text-zinc-100 hover:border-zinc-600 hover:bg-zinc-900"
+                        : "border-[#e6e4e1] bg-[#faf8f5] text-[#1a1a1a] hover:border-[#8b7355] hover:bg-[#f5f3f0]"
+                    }`}
+                  >
+                    Watch the demo
+                  </a>
                 </div>
               )}
 
@@ -204,6 +216,20 @@ export function LoginPage() {
               }`}>
                 <p className={`text-xs ${isDark ? "text-zinc-100" : "text-[#6b6b6b]"}`}>
                   Your sessions stay private. Unsync or delete your data from the database anytime.
+                </p>
+                <p className={`mt-2 text-xs ${isDark ? "text-zinc-400" : "text-[#8b7355]"}`}>
+                  This is the cloud version. Run 100% local with{" "}
+                  <a
+                    href="/docs#requirements"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={`underline underline-offset-2 transition-colors ${
+                      isDark ? "hover:text-zinc-200" : "hover:text-[#1a1a1a]"
+                    }`}
+                  >
+                    Convex local deployments
+                  </a>
+                  .
                 </p>
               </div>
             </div>

@@ -297,9 +297,86 @@ Convex HTTP Endpoints (/sync/*)
 | search_messages | Full-text | Keyword search on messages |
 | by_embedding | Vector | Semantic search |
 
+## Requirements for Self-Hosting
+
+### Option A: Cloud Deployment (Convex Cloud)
+
+Use Convex Cloud for a managed backend with automatic scaling and zero infrastructure management.
+
+**Requirements:**
+- Convex account (free tier available)
+- WorkOS account (free for up to 1M MAUs)
+- OpenAI API key (for embeddings)
+
+Follow the steps above to deploy to Convex Cloud.
+
+### Option B: 100% Local Deployment
+
+Run OpenSync entirely on your machine. No cloud services required. Your data never leaves your computer.
+
+**Requirements:**
+- Docker (for local Convex backend)
+- Node.js 18+
+- npm or bun
+
+**Step 1: Start Convex Local Backend**
+
+```bash
+# Start the local Convex backend (requires Docker)
+npx convex dev --local
+```
+
+This starts a local Convex instance at `http://127.0.0.1:3210`. No Convex Cloud account needed.
+
+**Step 2: Configure Local Environment**
+
+Create `.env.local`:
+
+```bash
+VITE_CONVEX_URL=http://127.0.0.1:3210
+VITE_WORKOS_CLIENT_ID=client_local_dev
+VITE_REDIRECT_URI=http://localhost:5173/callback
+```
+
+**Step 3: Deploy Schema Locally**
+
+```bash
+npx convex deploy --local
+```
+
+**Step 4: Run the Web UI**
+
+```bash
+npm run dev
+```
+
+**Step 5: Configure Plugin for Local Backend**
+
+```bash
+opencode-sync login
+# Enter: http://127.0.0.1:3210 as the Convex URL
+# Generate an API key from the local dashboard
+```
+
+**Local Deployment Notes:**
+
+- Authentication: For local development, you can bypass WorkOS by modifying `convex/auth.config.ts` or use WorkOS staging environment
+- Embeddings: Set `OPENAI_API_KEY` in Convex environment variables, or disable semantic search for fully offline operation
+- Data persistence: Local Convex stores data in Docker volumes. Back up the volume for data persistence across restarts
+- No internet required: Once set up, the entire stack runs offline
+
+**Disable Semantic Search (Optional)**
+
+To run fully offline without OpenAI:
+
+1. Remove or comment out the embedding generation in `convex/embeddings.ts`
+2. Semantic search will be disabled, but full-text search still works
+
+For more details, see [Convex Local Deployments](https://docs.convex.dev/cli/local-deployments).
+
 ## Production Checklist
 
-- [ ] Convex project created
+- [ ] Convex project created (cloud or local)
 - [ ] Schema deployed
 - [ ] Environment variables set (OPENAI_API_KEY, WORKOS_CLIENT_ID)
 - [ ] WorkOS redirects configured (including production URL)

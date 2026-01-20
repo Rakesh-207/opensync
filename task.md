@@ -93,6 +93,13 @@ None currently.
 
 ## Recently Completed
 
+- [x] Documentation updates for local deployment and external links
+  - Added Watch the demo link on Login page CTA (links to X demo video)
+  - Added 100% local deployment section in Docs page (/docs#requirements-local)
+  - Added 100% local deployment instructions in OPENSYNC-SETUP.md
+  - Trust message on Login page now mentions cloud version with link to local docs
+  - Added links to opencode.ai and claude.ai in Docs page hero and plugin sections
+
 - [x] Mobile optimization for Login and Dashboard pages
   - Fixed Getting Started section on Login page (was hidden on mobile with the dashboard preview)
   - Dashboard header: smaller padding, source dropdown hidden on small mobile, scrollable view toggles

@@ -53,10 +53,10 @@ React frontend application.
 
 | File | Description |
 |------|-------------|
-| `Login.tsx` | Login page with WorkOS AuthKit integration, privacy messaging, getting started section with plugin links (mobile-visible), tan mode theme support with footer theme switcher, GitHub icon link, updated mockup with view tabs and OC/CC source badges (desktop-only), feature list with Sync/Search/Private/Tag/Export/Delete keywords and eval datasets tagline |
+| `Login.tsx` | Login page with WorkOS AuthKit integration, privacy messaging, getting started section with plugin links (mobile-visible), tan mode theme support with footer theme switcher, GitHub icon link, updated mockup with view tabs and OC/CC source badges (desktop-only), feature list with Sync/Search/Private/Tag/Export/Delete keywords and eval datasets tagline, Watch the demo link, trust message with cloud/local deployment info |
 | `Dashboard.tsx` | Main dashboard with source filter dropdown (hidden on small mobile), source badges (CC/OC), eval toggle button, Context link with search icon, setup banner for new users (loading-aware, no flash on refresh), mobile-optimized header/filters/session rows, and four views: Overview (responsive stat grids), Sessions (mobile-friendly list with stacked layout), Evals (eval-ready sessions with export modal), Analytics (responsive breakdowns with collapsible filters) |
 | `Settings.tsx` | Tabbed settings: API Access (keys, endpoints), Profile (collapsible section for privacy, account info, Danger Zone with delete data/account options) |
-| `Docs.tsx` | Comprehensive documentation page with left sidebar navigation (hidden scrollbar), right table of contents, anchor tags, copy/view as markdown buttons, mobile responsive, works with both dark/tan themes. Covers use hosted version (with features, plugin install, login/sync), requirements, quick start, dashboard features, OpenCode plugin, Claude Code plugin, API reference, search types, authentication, hosting, fork guide, troubleshooting, and FAQ |
+| `Docs.tsx` | Comprehensive documentation page with left sidebar navigation (hidden scrollbar), right table of contents, anchor tags, copy/view as markdown buttons, mobile responsive, works with both dark/tan themes. Covers use hosted version (with features, plugin install, login/sync), self-hosting requirements with cloud and 100% local deployment options, quick start, dashboard features, OpenCode plugin, Claude Code plugin, API reference, search types, authentication, hosting, fork guide, troubleshooting, and FAQ. Links to opencode.ai and claude.ai in hero and plugin sections. |
 | `PublicSession.tsx` | Public session viewer for shared sessions (/s/:slug) with dark/tan theme toggle, content normalization for multi-plugin support, textContent fallback for empty parts |
 | `Evals.tsx` | Evals page with eval-ready session list, stats, export modal (DeepEval JSON, OpenAI JSONL, Filesystem formats) |
 | `Context.tsx` | Dedicated context search page (/context) with paginated full-text search for sessions and messages, no OpenAI key required |
@@ -85,7 +85,7 @@ Documentation files.
 
 | File | Description |
 |------|-------------|
-| `SETUP.md` | Full deployment and configuration guide |
+| `OPENSYNC-SETUP.md` | Full deployment and configuration guide with cloud and 100% local self-hosting options |
 | `API.md` | API endpoint reference with examples |
 | `OPENCODE-PLUGIN.md` | OpenCode plugin installation and usage (API Key auth) |
 | `CLAUDE-CODE-PLUGIN.md` | Claude Code plugin installation and hooks (API Key auth) |

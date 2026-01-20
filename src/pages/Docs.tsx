@@ -50,6 +50,10 @@ const docSections: DocSection[] = [
     id: "requirements",
     title: "Self-Hosting Requirements",
     icon: <Zap className="h-4 w-4" />,
+    subsections: [
+      { id: "requirements-cloud", title: "Cloud Deployment" },
+      { id: "requirements-local", title: "100% Local Deployment" },
+    ],
   },
   {
     id: "quickstart",
@@ -639,13 +643,54 @@ claude-code-sync login
 
 These requirements are only for self-hosting your own OpenSync instance. To use the hosted version at opensync.dev, you only need Node.js to install the plugins locally.
 
-Before getting started with self-hosting, make sure you have:
+### Option A: Cloud Deployment (Convex Cloud)
 
+Use Convex Cloud for a managed backend with automatic scaling and zero infrastructure management.
+
+**Requirements:**
 - Node.js 18 or later
 - npm or bun package manager
-- A Convex account (free at convex.dev)
-- A WorkOS account (free at workos.com)
+- Convex account (free at convex.dev)
+- WorkOS account (free at workos.com)
 - Optional: OpenAI API key for semantic search
+
+### Option B: 100% Local Deployment
+
+Run OpenSync entirely on your machine. No cloud services required. Your data never leaves your computer.
+
+**Requirements:**
+- Docker (for local Convex backend)
+- Node.js 18 or later
+- npm or bun package manager
+- Optional: OpenAI API key (can run without it)
+
+**Step 1: Start Local Convex Backend**
+\`\`\`bash
+npx convex dev --local
+\`\`\`
+This starts a local Convex instance at http://127.0.0.1:3210.
+
+**Step 2: Configure Local Environment**
+\`\`\`bash
+# .env.local
+VITE_CONVEX_URL=http://127.0.0.1:3210
+VITE_WORKOS_CLIENT_ID=client_local_dev
+VITE_REDIRECT_URI=http://localhost:5173/callback
+\`\`\`
+
+**Step 3: Deploy and Run**
+\`\`\`bash
+npx convex deploy --local
+npm run dev
+\`\`\`
+
+**Step 4: Configure Plugin**
+\`\`\`bash
+opencode-sync login
+# Enter: http://127.0.0.1:3210 as the Convex URL
+\`\`\`
+
+For more details, see https://docs.convex.dev/cli/local-deployments
 
 ## Quick Start
 
@@ -1050,8 +1095,25 @@ npm install
                 OpenSync Documentation
               </h1>
               <p className={cn("text-base leading-relaxed", t.textMuted)}>
-                Sync, search, and share your AI coding sessions from OpenCode
-                and Claude Code. Cloud-synced dashboards that track session
+                Sync, search, and share your AI coding sessions from{" "}
+                <a
+                  href="https://opencode.ai"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={cn("underline", t.interactive)}
+                >
+                  OpenCode
+                </a>{" "}
+                and{" "}
+                <a
+                  href="https://claude.ai"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={cn("underline", t.interactive)}
+                >
+                  Claude Code
+                </a>
+                . Cloud-synced dashboards that track session
                 activity, tool usage, and token spend across projects.
               </p>
 
@@ -1319,7 +1381,7 @@ npm install
                 onCopyMarkdown={() =>
                   copySectionMarkdown(
                     "requirements",
-                    `## Requirements for Self-Hosting\n\nThese are only needed if you want to run your own OpenSync instance. For the hosted version at opensync.dev, skip to the section above.\n\n- Node.js 18 or later\n- npm or bun\n- Convex account\n- WorkOS account\n- Optional: OpenAI API key`
+                    `## Requirements for Self-Hosting\n\nTwo options: Cloud (Convex Cloud) or 100% Local (Docker-based).\n\n### Cloud Deployment\n- Node.js 18+\n- Convex account (free)\n- WorkOS account (free)\n- Optional: OpenAI API key\n\n### 100% Local Deployment\n- Docker\n- Node.js 18+\n- No cloud accounts needed`
                   )
                 }
               />
@@ -1338,47 +1400,172 @@ npm install
                   , you only need Node.js to install the plugins locally.
                 </p>
               </div>
-              <div className={cn("mt-4 p-4 rounded-lg border", t.bgCard, t.border)}>
-                <ul className={cn("space-y-2 text-sm", t.textMuted)}>
-                  <li className="flex items-center gap-2">
-                    <Check className="h-4 w-4 text-emerald-500" />
-                    Node.js 18 or later
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <Check className="h-4 w-4 text-emerald-500" />
-                    npm or bun package manager
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <Check className="h-4 w-4 text-emerald-500" />
-                    <a
-                      href="https://convex.dev"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className={cn("underline", t.interactive)}
-                    >
-                      Convex account
-                    </a>{" "}
-                    (free tier available)
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <Check className="h-4 w-4 text-emerald-500" />
-                    <a
-                      href="https://workos.com"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className={cn("underline", t.interactive)}
-                    >
-                      WorkOS account
-                    </a>{" "}
-                    (free tier available)
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <span className={cn("text-xs px-1.5 rounded", t.bgCode, t.textDim)}>
-                      optional
-                    </span>
-                    OpenAI API key for semantic search
-                  </li>
-                </ul>
+
+              <div className="mt-6 space-y-6">
+                {/* Cloud Deployment */}
+                <div id="requirements-cloud" data-section>
+                  <SectionHeader
+                    id="requirements-cloud"
+                    title="Option A: Cloud Deployment"
+                    level={3}
+                  />
+                  <p className={cn("mt-2 text-sm", t.textMuted)}>
+                    Use Convex Cloud for a managed backend with automatic scaling and zero infrastructure management.
+                  </p>
+                  <div className={cn("mt-3 p-4 rounded-lg border", t.bgCard, t.border)}>
+                    <ul className={cn("space-y-2 text-sm", t.textMuted)}>
+                      <li className="flex items-center gap-2">
+                        <Check className="h-4 w-4 text-emerald-500" />
+                        Node.js 18 or later
+                      </li>
+                      <li className="flex items-center gap-2">
+                        <Check className="h-4 w-4 text-emerald-500" />
+                        npm or bun package manager
+                      </li>
+                      <li className="flex items-center gap-2">
+                        <Check className="h-4 w-4 text-emerald-500" />
+                        <a
+                          href="https://convex.dev"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className={cn("underline", t.interactive)}
+                        >
+                          Convex account
+                        </a>{" "}
+                        (free tier available)
+                      </li>
+                      <li className="flex items-center gap-2">
+                        <Check className="h-4 w-4 text-emerald-500" />
+                        <a
+                          href="https://workos.com"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className={cn("underline", t.interactive)}
+                        >
+                          WorkOS account
+                        </a>{" "}
+                        (free tier available)
+                      </li>
+                      <li className="flex items-center gap-2">
+                        <span className={cn("text-xs px-1.5 rounded", t.bgCode, t.textDim)}>
+                          optional
+                        </span>
+                        OpenAI API key for semantic search
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+
+                {/* 100% Local Deployment */}
+                <div id="requirements-local" data-section>
+                  <SectionHeader
+                    id="requirements-local"
+                    title="Option B: 100% Local Deployment"
+                    level={3}
+                  />
+                  <p className={cn("mt-2 text-sm", t.textMuted)}>
+                    Run OpenSync entirely on your machine. No cloud services required. Your data never leaves your computer.
+                  </p>
+                  <div className={cn("mt-3 p-4 rounded-lg border", t.bgCard, t.border)}>
+                    <ul className={cn("space-y-2 text-sm", t.textMuted)}>
+                      <li className="flex items-center gap-2">
+                        <Check className="h-4 w-4 text-emerald-500" />
+                        <a
+                          href="https://docker.com"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className={cn("underline", t.interactive)}
+                        >
+                          Docker
+                        </a>{" "}
+                        (for local Convex backend)
+                      </li>
+                      <li className="flex items-center gap-2">
+                        <Check className="h-4 w-4 text-emerald-500" />
+                        Node.js 18 or later
+                      </li>
+                      <li className="flex items-center gap-2">
+                        <Check className="h-4 w-4 text-emerald-500" />
+                        npm or bun package manager
+                      </li>
+                      <li className="flex items-center gap-2">
+                        <span className={cn("text-xs px-1.5 rounded", t.bgCode, t.textDim)}>
+                          optional
+                        </span>
+                        OpenAI API key for semantic search (can run without it)
+                      </li>
+                    </ul>
+                  </div>
+
+                  <div className={cn("mt-4 p-4 rounded-lg border", t.bgCode, t.border)}>
+                    <p className={cn("text-xs font-medium mb-3", t.textSecondary)}>
+                      Step 1: Start Local Convex Backend
+                    </p>
+                    <CodeBlock code={`# Start the local Convex backend (requires Docker)
+npx convex dev --local`} />
+                    <p className={cn("mt-3 text-xs", t.textSubtle)}>
+                      This starts a local Convex instance at{" "}
+                      <code className={cn("px-1 rounded", t.bgCard)}>http://127.0.0.1:3210</code>.
+                      No Convex Cloud account needed.
+                    </p>
+                  </div>
+
+                  <div className={cn("mt-4 p-4 rounded-lg border", t.bgCode, t.border)}>
+                    <p className={cn("text-xs font-medium mb-3", t.textSecondary)}>
+                      Step 2: Configure Local Environment
+                    </p>
+                    <CodeBlock
+                      code={`# .env.local
+VITE_CONVEX_URL=http://127.0.0.1:3210
+VITE_WORKOS_CLIENT_ID=client_local_dev
+VITE_REDIRECT_URI=http://localhost:5173/callback`}
+                      title=".env.local"
+                    />
+                  </div>
+
+                  <div className={cn("mt-4 p-4 rounded-lg border", t.bgCode, t.border)}>
+                    <p className={cn("text-xs font-medium mb-3", t.textSecondary)}>
+                      Step 3: Deploy Schema and Run
+                    </p>
+                    <CodeBlock code={`# Deploy schema to local backend
+npx convex deploy --local
+
+# Start the web UI
+npm run dev`} />
+                  </div>
+
+                  <div className={cn("mt-4 p-4 rounded-lg border", t.bgCode, t.border)}>
+                    <p className={cn("text-xs font-medium mb-3", t.textSecondary)}>
+                      Step 4: Configure Plugin for Local Backend
+                    </p>
+                    <CodeBlock code={`opencode-sync login
+# Enter: http://127.0.0.1:3210 as the Convex URL
+# Generate an API key from the local dashboard`} />
+                  </div>
+
+                  <div className={cn("mt-4 p-4 rounded-lg border border-amber-800/50 bg-amber-900/20", t.border)}>
+                    <p className={cn("text-xs font-medium mb-2", theme === "dark" ? "text-amber-200" : "text-amber-800")}>
+                      Local Deployment Notes
+                    </p>
+                    <ul className={cn("space-y-1 text-xs list-disc list-inside", theme === "dark" ? "text-amber-400/70" : "text-amber-600")}>
+                      <li>Authentication: Bypass WorkOS for local dev or use WorkOS staging</li>
+                      <li>Data persistence: Local Convex stores data in Docker volumes</li>
+                      <li>Fully offline: Once set up, the entire stack runs without internet</li>
+                      <li>Disable semantic search by removing OpenAI calls for 100% offline operation</li>
+                    </ul>
+                    <div className="mt-3">
+                      <a
+                        href="https://docs.convex.dev/cli/local-deployments"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className={cn("text-xs flex items-center gap-1", theme === "dark" ? "text-amber-300" : "text-amber-700")}
+                      >
+                        Convex Local Deployments docs
+                        <ExternalLink className="h-3 w-3" />
+                      </a>
+                    </div>
+                  </div>
+                </div>
               </div>
             </section>
 
@@ -1589,7 +1776,16 @@ npx convex dev`}
             <section id="opencode-plugin" data-section className="mb-12">
               <SectionHeader id="opencode-plugin" title="OpenCode Plugin" />
               <p className={cn("mt-2 text-sm", t.textMuted)}>
-                Sync your OpenCode sessions to the OpenSync dashboard automatically.
+                Sync your{" "}
+                <a
+                  href="https://opencode.ai"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={cn("underline", t.interactive)}
+                >
+                  OpenCode
+                </a>{" "}
+                sessions to the OpenSync dashboard automatically.
               </p>
 
               <div className="mt-6 space-y-6">
@@ -1704,7 +1900,16 @@ npx convex dev`}
             <section id="claude-plugin" data-section className="mb-12">
               <SectionHeader id="claude-plugin" title="Claude Code Plugin" />
               <p className={cn("mt-2 text-sm", t.textMuted)}>
-                Sync your Claude Code sessions to the same OpenSync dashboard.
+                Sync your{" "}
+                <a
+                  href="https://claude.ai"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={cn("underline", t.interactive)}
+                >
+                  Claude Code
+                </a>{" "}
+                sessions to the same OpenSync dashboard.
               </p>
 
               <div className="mt-6 space-y-6">
