@@ -101,6 +101,8 @@ None currently.
   - Message highlighting when clicking message search results
   - Escape key and backdrop click to close
   - Dashboard now reads ?session= URL param to auto-select session and switch to Sessions tab
+  - Cmd/Ctrl+K on Dashboard navigates to Context search
+  - Fixed tan mode prose styling (prose-zinc for proper text colors)
 
 - [x] Documentation updates for local deployment and external links
   - Added Watch the demo link on Login page CTA (links to X demo video)

@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useMemo } from "react";
 import { useQuery, useMutation, useAction } from "convex/react";
 import { api } from "../../convex/_generated/api";
-import { Link, useSearchParams } from "react-router-dom";
+import { Link, useSearchParams, useNavigate } from "react-router-dom";
 import { useAuth } from "../lib/auth";
 import { cn } from "../lib/utils";
 import { useTheme, getThemeClasses } from "../lib/theme";
@@ -57,6 +57,7 @@ export function DashboardPage() {
   const { user, signOut } = useAuth();
   const { theme, toggleTheme } = useTheme();
   const t = getThemeClasses(theme);
+  const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const [viewMode, setViewMode] = useState<ViewMode>("overview");
   const [selectedSessionId, setSelectedSessionId] = useState<Id<"sessions"> | null>(null);
@@ -85,6 +86,18 @@ export function DashboardPage() {
       setSearchParams({}, { replace: true });
     }
   }, [searchParams, setSearchParams]);
+
+  // Keyboard shortcut: Cmd/Ctrl + K to open Context search
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === "k") {
+        e.preventDefault();
+        navigate("/context");
+      }
+    };
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [navigate]);
 
   // Convert sourceFilter to query arg (undefined means all)
   const sourceArg = sourceFilter === "all" ? undefined : sourceFilter;
