@@ -6,6 +6,8 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+## [1.0.0] - 2025-01-21
+
 ### Added
 
 - droid-sync community plugin to README Ecosystem (syncs Factory Droid sessions)
@@ -20,7 +22,6 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   - Dashboard and Evals pages filter dropdown options based on Settings preferences
   - Backward compatible: defaults to OpenCode and Claude Code for existing users
   - Disabling an agent hides it from dropdown but doesn't affect data
-
 - "Syncs with" section on Login page showing supported CLI tools (OpenCode, Claude Code, Droid, Cursor)
   - Theme-aware icons that switch between dark/light variants
   - Cursor shown with "coming soon" badge
@@ -36,42 +37,11 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   - Matches dark mode (zinc-900/zinc-800) and tan mode (cream/tan) design system
   - Click outside to close, Escape key support, chevron rotation animation
   - Proper hover and active states for both themes
-
-### Changed
-
-- Homepage (/) is now public: logged-in users see "Go to Dashboard" button instead of auto-redirect
-- Logged-in users can visit homepage while staying authenticated
-- OAuth callback now redirects to /dashboard instead of / after sign-in
-- Removed auto-redirect from LoginPage when authenticated
-- Settings back link now navigates to /dashboard instead of homepage
-
-### Fixed
-
-- Fixed production logout on page refresh by setting AuthKit devMode to true (avoids third-party cookie blocking)
-- Simplified ProtectedRoute to use Convex auth as single source of truth
-- Added 500ms spinner delay to avoid loading flash on fast auth checks
-- Added 5-second timeout to handle Safari infinite loading issue
-
-### Added
-
 - Docs page search with instant typeahead results and keyboard navigation
 - Search indexes all sections, subsections, and keywords for quick lookup
 - Cmd/Ctrl+K keyboard shortcut to focus search on Docs page
 - Search navigates directly to section via hash anchor
 - Search available in header (desktop) and sidebar (mobile)
-
-### Fixed
-
-- Fixed write conflicts in messages:upsert, sessions:upsert, and embeddings:store mutations
-- Added 5-10 second dedup windows to prevent rapid updates causing OCC conflicts
-- Refactored messages:upsert to combine session patches into single write operation
-- Added Promise.all for parallel parts deletion/insertion to reduce conflict windows
-- Created batch mutations (batchUpsert) for sessions and messages to reduce /sync/batch conflicts
-- Updated embeddings:store to use replace pattern instead of delete+insert
-- Added idempotency checks with early returns when no meaningful changes detected
-
-### Added
-
 - Real-time Platform Stats leaderboard on Login/homepage with Top Models and Top CLI boxes
 - Top CLI shows sources (OpenCode, Claude Code, Cursor, Droid, Codex, Amp) sorted by session count
 - No loading spinner (Convex real-time updates appear instantly)
@@ -79,73 +49,16 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Discord community icon in Login page footer (links to convex.dev/community)
 - Support icon in Login page footer (links to GitHub issues page)
 - Discussions icon in Login page footer (links to GitHub Discussions)
-
-### Fixed
-
-- Fixed provider display showing "unknown" for antigravity-oauth and anthropic-oauth sessions (fixes #2)
-- Added inferProvider helper to derive provider from model name when provider field is missing
-- Applied provider inference consistently in providerStats, sessionsWithDetails query, and filter logic
-- Fixed auth session persistence: users no longer need to sign in again on page refresh (fixes #1)
-- Added dedicated CallbackHandler component for OAuth callback processing with 10s timeout
-- Added return-to URL preservation so users are redirected to their intended route after sign-in
-- Added devMode config to AuthKitProvider for proper production session handling
-- Improved callback flow: waits for both WorkOS and Convex auth to complete before redirecting
-- Added /dashboard route as alias to root dashboard
-- Added /profile route that shows Settings page with profile tab auto-selected and expanded
-
-### Added
-
 - Slide-over panel for Context search results (click result to preview session without navigating away)
 - Session details panel with full message thread, syntax highlighting, copy/download actions
 - Message highlighting when clicking message search results (scrolls to and highlights the specific message)
 - "Open in Dashboard" button in slide-over to navigate to full dashboard view with session pre-selected
 - Deep linking support in Dashboard: reads ?session= URL param to auto-select session and switch to Sessions tab
 - Cmd/Ctrl+K keyboard shortcut on Dashboard navigates to Context search page
-
-### Fixed
-
-- Fixed tan mode text contrast in Context search slide-over panel (explicit dark text colors for readability)
-- Escape key and backdrop click to close slide-over panel
-- Watch the demo link on Login page CTA section (links to X demo video)
-- 100% local deployment instructions in OPENSYNC-SETUP.md docs (Convex local backend with Docker)
-- 100% local deployment section in Docs page (/docs#requirements-local) with step-by-step instructions
-- Links to opencode.ai and claude.ai in Docs page hero and plugin sections
-- Trust message on Login page now mentions cloud version and links to local docs (/docs#requirements)
-- install.md file for AI agent installation following installmd.org spec (self-hosting setup instructions)
-- Collapsible Profile section in Settings page (collapsed by default for privacy during demos/recordings)
-- Theme toggle (dark/tan mode) on public session page (/s/:slug)
-- Mobile-optimized Dashboard: responsive header, filter bars, session rows with stacked layout on small screens
-- Mobile Context icon in header nav (visible only on mobile for quick access to search)
-
-### Fixed
-
-- Fixed Getting Started section on Login page not showing on mobile (was hidden with dashboard preview)
-- Fixed setup banner flash on dashboard refresh: banner now waits for data to load before showing
-- Fixed delete account not removing Convex data: changed deletion order to delete Convex data first, then WorkOS
-- Fixed delete account redirecting to WorkOS logout URL instead of homepage: replaced signOut() with direct redirect
-- Fixed public sessions not showing all data: added content normalization helpers for multi-plugin support
-- Fixed public sessions missing textContent fallback when parts array has no displayable content
-- Added tool-result part type rendering to public sessions (was missing)
-
-### Changed
-
-- Removed user email from dropdown menus across all pages (Dashboard, Context, Evals, Header) for cleaner UX
-- Removed search bar from Dashboard header, added search icon to Context link for cleaner UX
-- Search functionality consolidated into dedicated Context page (/context)
-- Login page now supports tan mode theme with icon-only theme switcher in bottom right footer
-- Login page mockup updated: view tabs (overview/sessions/evals/analytics), 4 stats (sessions/tokens/cost/duration), OC/CC source badges on sessions
-- Login page tagline now mentions eval datasets: "Build eval datasets across projects"
-- Login page feature list updated: added Tag feature for eval organization, improved keyword colors for better contrast in dark mode
-- Trust message and plugin link text improved for readability in dark mode (zinc-400 to zinc-100)
-- Docs page sidebar and main content now use hidden scrollbar for cleaner UI
-
-### Added
-
 - Page-specific theme defaults configuration (PAGE_THEME_DEFAULTS) in theme.tsx
 - usePageTheme hook to apply different default themes per page (login: dark, dashboard: tan)
 - PageType type for type-safe page identifiers (login, dashboard, docs, settings, default)
 - getPageDefaultTheme helper function for retrieving page-specific defaults
-
 - Comprehensive documentation page with Mintlify-style UI
 - Left sidebar navigation with collapsible sections and anchor tags
 - Right table of contents for on-page navigation
@@ -157,14 +70,11 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Documentation sections: Use Hosted Version, Requirements, Quick Start, Dashboard Features, OpenCode Plugin, Claude Code Plugin, API Reference, Search Types, Authentication, Hosting, Fork Guide, Troubleshooting, FAQ
 - Mobile responsive design with slide-out sidebar
 - Theme support for both dark and tan modes
-
 - GitHub icon link in Login page footer (bottom left, links to opensync repo)
-
 - Setup banner on Dashboard Overview for new users with no synced data
 - Banner links to opencode-sync-plugin and claude-code-sync repos with npm install commands
 - Dismissible banner with X button, state persists in localStorage
 - Theme switcher on Login page footer (Sun/Moon icon, no text labels)
-
 - Delete synced data option in Settings (removes all sessions, messages, embeddings while keeping account)
 - Delete account option in Settings (calls WorkOS API to delete user, removes all Convex data)
 - Danger Zone section in Profile tab with confirmation modals for destructive actions
@@ -220,28 +130,22 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - New stat cards with icons for token breakdown (prompt, completion, total, messages, duration)
 - Projects Overview filtering (search, min sessions, min tokens) with sortable columns
 
-### Fixed
-
-- Fixed Claude Code session content rendering with empty blocks
-- Added content normalization helpers to handle different part formats (string vs `{ text: "..." }` vs `{ content: "..." }`)
-- SessionViewer now properly extracts text content from all plugin formats
-- Added fallback to `message.textContent` when parts have no displayable content
-- Updated markdown export, API export, and context functions with same content normalization
-- Fixed searchable text extraction in message upsert for better full-text search on Claude Code sessions
-- Enhanced embedding generation to use parts content as fallback when textContent is empty
-- Fixed session persistence on page refresh with improved token refresh logic and retry mechanism
-- Auth sync now retries up to 3 times with proper state management to prevent infinite loops
-- Added 5-second timeout on session sync in ProtectedRoute to prevent stuck loading states
-- Removed devMode dependency for session persistence (works in both dev and production)
-- Fixed Tokens/Cost/Duration table header alignment in sessions view
-- Fixed markdown download with sanitized filenames and date timestamps
-- Added loading state to download button when markdown is being fetched
-- Fixed markdown export to include message content from parts and textContent fallback
-- Fixed Consumption Breakdown filters to actually filter model/project stats
-- Fixed StackedBarChart height rendering with proper flex layout and minHeight values
-
 ### Changed
 
+- Homepage (/) is now public: logged-in users see "Go to Dashboard" button instead of auto-redirect
+- Logged-in users can visit homepage while staying authenticated
+- OAuth callback now redirects to /dashboard instead of / after sign-in
+- Removed auto-redirect from LoginPage when authenticated
+- Settings back link now navigates to /dashboard instead of homepage
+- Removed user email from dropdown menus across all pages (Dashboard, Context, Evals, Header) for cleaner UX
+- Removed search bar from Dashboard header, added search icon to Context link for cleaner UX
+- Search functionality consolidated into dedicated Context page (/context)
+- Login page now supports tan mode theme with icon-only theme switcher in bottom right footer
+- Login page mockup updated: view tabs (overview/sessions/evals/analytics), 4 stats (sessions/tokens/cost/duration), OC/CC source badges on sessions
+- Login page tagline now mentions eval datasets: "Build eval datasets across projects"
+- Login page feature list updated: added Tag feature for eval organization, improved keyword colors for better contrast in dark mode
+- Trust message and plugin link text improved for readability in dark mode (zinc-400 to zinc-100)
+- Docs page sidebar and main content now use hidden scrollbar for cleaner UI
 - Overview layout: Usage Overview section moved above Recent Sessions, Token Usage and Model Distribution moved to bottom
 - Removed EnvStatus debug component from login page footer (cleaner production UI)
 - Removed Daily Activity chart from Analytics view (replaced with more detailed metrics)
@@ -271,8 +175,65 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Plugins accept both `.convex.cloud` and `.convex.site` URL formats
 - No browser authentication required for plugins
 
-### Fixed (Build and Deployment)
+### Fixed
 
+- Fixed production logout on page refresh by setting AuthKit devMode to true (avoids third-party cookie blocking)
+- Simplified ProtectedRoute to use Convex auth as single source of truth
+- Added 500ms spinner delay to avoid loading flash on fast auth checks
+- Added 5-second timeout to handle Safari infinite loading issue
+- Fixed write conflicts in messages:upsert, sessions:upsert, and embeddings:store mutations
+- Added 5-10 second dedup windows to prevent rapid updates causing OCC conflicts
+- Refactored messages:upsert to combine session patches into single write operation
+- Added Promise.all for parallel parts deletion/insertion to reduce conflict windows
+- Created batch mutations (batchUpsert) for sessions and messages to reduce /sync/batch conflicts
+- Updated embeddings:store to use replace pattern instead of delete+insert
+- Added idempotency checks with early returns when no meaningful changes detected
+- Fixed provider display showing "unknown" for antigravity-oauth and anthropic-oauth sessions (fixes #2)
+- Added inferProvider helper to derive provider from model name when provider field is missing
+- Applied provider inference consistently in providerStats, sessionsWithDetails query, and filter logic
+- Fixed auth session persistence: users no longer need to sign in again on page refresh (fixes #1)
+- Added dedicated CallbackHandler component for OAuth callback processing with 10s timeout
+- Added return-to URL preservation so users are redirected to their intended route after sign-in
+- Added devMode config to AuthKitProvider for proper production session handling
+- Improved callback flow: waits for both WorkOS and Convex auth to complete before redirecting
+- Added /dashboard route as alias to root dashboard
+- Added /profile route that shows Settings page with profile tab auto-selected and expanded
+- Fixed tan mode text contrast in Context search slide-over panel (explicit dark text colors for readability)
+- Escape key and backdrop click to close slide-over panel
+- Watch the demo link on Login page CTA section (links to X demo video)
+- 100% local deployment instructions in OPENSYNC-SETUP.md docs (Convex local backend with Docker)
+- 100% local deployment section in Docs page (/docs#requirements-local) with step-by-step instructions
+- Links to opencode.ai and claude.ai in Docs page hero and plugin sections
+- Trust message on Login page now mentions cloud version and links to local docs (/docs#requirements)
+- install.md file for AI agent installation following installmd.org spec (self-hosting setup instructions)
+- Collapsible Profile section in Settings page (collapsed by default for privacy during demos/recordings)
+- Theme toggle (dark/tan mode) on public session page (/s/:slug)
+- Mobile-optimized Dashboard: responsive header, filter bars, session rows with stacked layout on small screens
+- Mobile Context icon in header nav (visible only on mobile for quick access to search)
+- Fixed Getting Started section on Login page not showing on mobile (was hidden with dashboard preview)
+- Fixed setup banner flash on dashboard refresh: banner now waits for data to load before showing
+- Fixed delete account not removing Convex data: changed deletion order to delete Convex data first, then WorkOS
+- Fixed delete account redirecting to WorkOS logout URL instead of homepage: replaced signOut() with direct redirect
+- Fixed public sessions not showing all data: added content normalization helpers for multi-plugin support
+- Fixed public sessions missing textContent fallback when parts array has no displayable content
+- Added tool-result part type rendering to public sessions (was missing)
+- Fixed Claude Code session content rendering with empty blocks
+- Added content normalization helpers to handle different part formats (string vs `{ text: "..." }` vs `{ content: "..." }`)
+- SessionViewer now properly extracts text content from all plugin formats
+- Added fallback to `message.textContent` when parts have no displayable content
+- Updated markdown export, API export, and context functions with same content normalization
+- Fixed searchable text extraction in message upsert for better full-text search on Claude Code sessions
+- Enhanced embedding generation to use parts content as fallback when textContent is empty
+- Fixed session persistence on page refresh with improved token refresh logic and retry mechanism
+- Auth sync now retries up to 3 times with proper state management to prevent infinite loops
+- Added 5-second timeout on session sync in ProtectedRoute to prevent stuck loading states
+- Removed devMode dependency for session persistence (works in both dev and production)
+- Fixed Tokens/Cost/Duration table header alignment in sessions view
+- Fixed markdown download with sanitized filenames and date timestamps
+- Added loading state to download button when markdown is being fetched
+- Fixed markdown export to include message content from parts and textContent fallback
+- Fixed Consumption Breakdown filters to actually filter model/project stats
+- Fixed StackedBarChart height rendering with proper flex layout and minHeight values
 - Fixed "Session not found" error when messages sync before their sessions (auto-creates session)
 - Fixed Netlify build errors for TypeScript compilation
 - Added `src/vite-env.d.ts` for Vite client types (import.meta.env)
@@ -296,7 +257,7 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Updated CLAUDE-CODE-PLUGIN.md with API Key authentication and CLI commands
 - Updated SETUP.md Step 9 and data flow diagram for API Key auth
 
-## [0.1.0] - 2026-01-17
+## [0.1.0] - 2025-01-17
 
 Initial release.
 
