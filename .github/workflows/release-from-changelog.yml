@@ -8,6 +8,7 @@ on:
 
 permissions:
   contents: write
+  discussions: write
 
 jobs:
   release:
@@ -31,15 +32,17 @@ jobs:
           echo "version=$VERSION" >> $GITHUB_OUTPUT
           echo "Found version: $VERSION"
           
-          # Extract the content for this version (between this ## and the next ##)
+          # Extract the content for this version
           awk -v ver="## \\[$VERSION\\]" '
             $0 ~ ver { found=1; next }
             found && /^## \[/ { exit }
             found { print }
           ' changelog.md > release_body.txt
           
+          # Store body for both release and discussion
+          BODY=$(cat release_body.txt)
           echo "body<<CHANGELOG_EOF" >> $GITHUB_OUTPUT
-          cat release_body.txt >> $GITHUB_OUTPUT
+          echo "$BODY" >> $GITHUB_OUTPUT
           echo "CHANGELOG_EOF" >> $GITHUB_OUTPUT
 
       - name: Check if release already exists
@@ -63,5 +66,30 @@ jobs:
             --title "v${{ steps.changelog.outputs.version }}" \
             --notes "${{ steps.changelog.outputs.body }}"
           echo "Created release v${{ steps.changelog.outputs.version }}"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Create Discussion Announcement
+        if: steps.changelog.outputs.skip != 'true' && steps.check.outputs.exists == 'false'
+        run: |
+          gh api graphql -f query='
+            mutation($repoId: ID!, $categoryId: ID!, $title: String!, $body: String!) {
+              createDiscussion(input: {
+                repositoryId: $repoId
+                categoryId: $categoryId
+                title: $title
+                body: $body
+              }) {
+                discussion {
+                  url
+                }
+              }
+            }
+          ' \
+            -f repoId="${{ github.repository_id }}" \
+            -f categoryId="DIC_kwDOQ70aG84C1Os7" \
+            -f title="Release v${{ steps.changelog.outputs.version }}" \
+            -f body="${{ steps.changelog.outputs.body }}"
+          echo "Created discussion for v${{ steps.changelog.outputs.version }}"
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

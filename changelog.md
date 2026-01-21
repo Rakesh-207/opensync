@@ -8,12 +8,34 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Added
 
+- droid-sync community plugin to README Ecosystem (syncs Factory Droid sessions)
+- AI Coding Agents settings section with two-column layout on Settings page
+  - Plugin Setup on left column (existing)
+  - AI Coding Agents on right column (new)
+  - Checkbox list of 12 CLI tools: OpenCode, Claude Code, Factory Droid, Cursor, Codex CLI, Continue, Amp, Aider, Goose, Mentat, Cline, Kilo Code
+  - Status badges: supported (green), community (blue), planned (amber), TBD (gray)
+  - OpenCode and Claude Code enabled by default
+  - Settings persist in database via enabledAgents field on users table
+- Source filter dropdown now respects user's enabled agents
+  - Dashboard and Evals pages filter dropdown options based on Settings preferences
+  - Backward compatible: defaults to OpenCode and Claude Code for existing users
+  - Disabling an agent hides it from dropdown but doesn't affect data
+
+- "Syncs with" section on Login page showing supported CLI tools (OpenCode, Claude Code, Droid, Cursor)
+  - Theme-aware icons that switch between dark/light variants
+  - Cursor shown with "coming soon" badge
+  - Icons: opencode-dark.svg, opencode-light.svg, claude.svg, factory-droid.svg added to public folder
+- Reusable prompt template for adding CLI/npm packages to homepage (docs/add-package-to-home-prompt.md)
 - GitHub Releases automation: changelog.md updates now auto-create GitHub Releases via GitHub Actions
 - changelog.mdc cursor rule for consistent changelog format compatible with release automation
 - Terms of Service and Privacy Policy modal links in homepage footer (left of theme switcher)
 - Legal section in Settings Profile tab with Terms and Privacy buttons
 - LegalModal component with dark mode styling, markdown rendering, ESC/X to close
 - Full Privacy Policy and Terms of Service content embedded in app
+- Custom themed source filter dropdown in Dashboard header (replaces native select)
+  - Matches dark mode (zinc-900/zinc-800) and tan mode (cream/tan) design system
+  - Click outside to close, Escape key support, chevron rotation animation
+  - Proper hover and active states for both themes
 
 ### Changed
 

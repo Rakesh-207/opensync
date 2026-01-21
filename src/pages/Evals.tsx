@@ -24,6 +24,25 @@ import {
   Folder,
 } from "lucide-react";
 
+// AI Coding Agents configuration - must match Dashboard.tsx and Settings.tsx
+const AI_AGENTS_MAP: Record<string, string> = {
+  "opencode": "OpenCode",
+  "claude-code": "Claude Code",
+  "factory-droid": "Factory Droid",
+  "cursor": "Cursor",
+  "codex-cli": "Codex CLI",
+  "continue": "Continue",
+  "amp": "Amp",
+  "aider": "Aider",
+  "goose": "Goose",
+  "mentat": "Mentat",
+  "cline": "Cline",
+  "kilo-code": "Kilo Code",
+};
+
+// Default enabled agents for backward compatibility
+const DEFAULT_ENABLED_AGENTS = ["opencode", "claude-code"];
+
 // Source badge component (matches Dashboard)
 function SourceBadge({ source, theme }: { source?: string; theme: "dark" | "tan" }) {
   const isDark = theme === "dark";
@@ -86,6 +105,9 @@ export function EvalsPage() {
   const [isExporting, setIsExporting] = useState(false);
 
   // Queries
+  const currentUser = useQuery(api.users.me);
+  const enabledAgents = currentUser?.enabledAgents ?? DEFAULT_ENABLED_AGENTS;
+  
   const evalData = useQuery(api.evals.listEvalSessions, {
     source: sourceFilter,
     tags: tagFilter ? [tagFilter] : undefined,
@@ -257,9 +279,9 @@ export function EvalsPage() {
           {/* Filters and actions bar */}
           <div className={cn("flex items-center justify-between p-3 rounded-lg border", t.bgCard, t.border)}>
             <div className="flex items-center gap-2">
-              {/* Source filter */}
+              {/* Source filter - filtered by user's enabled agents */}
               <select
-                value={sourceFilter || ""}
+                value={sourceFilter && enabledAgents.includes(sourceFilter) ? sourceFilter : ""}
                 onChange={(e) => setSourceFilter(e.target.value || undefined)}
                 className={cn(
                   "text-xs px-2 py-1.5 rounded border",
@@ -267,8 +289,11 @@ export function EvalsPage() {
                 )}
               >
                 <option value="">All Sources</option>
-                <option value="opencode">OpenCode</option>
-                <option value="claude-code">Claude Code</option>
+                {enabledAgents.map((agentId) => (
+                  <option key={agentId} value={agentId}>
+                    {AI_AGENTS_MAP[agentId] || agentId}
+                  </option>
+                ))}
               </select>
 
               {/* Tag filter */}

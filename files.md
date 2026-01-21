@@ -14,7 +14,7 @@ Codebase file structure and descriptions.
 | `tailwind.config.js` | Tailwind CSS configuration |
 | `postcss.config.js` | PostCSS configuration |
 | `netlify.toml` | Netlify deployment config with SPA redirect rules |
-| `README.md` | Project documentation |
+| `README.md` | Project documentation with Ecosystem table (official + community plugins) |
 | `install.md` | AI agent installation instructions following install.md spec for self-hosting setup |
 
 ## convex/
@@ -23,10 +23,10 @@ Backend functions and schema.
 
 | File | Description |
 |------|-------------|
-| `schema.ts` | Database schema: users, sessions (with eval fields: evalReady, reviewedAt, evalNotes, evalTags), messages, parts, sessionEmbeddings, messageEmbeddings, apiLogs |
+| `schema.ts` | Database schema: users (with enabledAgents for CLI tool preferences), sessions (with eval fields: evalReady, reviewedAt, evalNotes, evalTags), messages, parts, sessionEmbeddings, messageEmbeddings, apiLogs |
 | `auth.config.ts` | WorkOS JWT validation configuration |
 | `convex.config.ts` | Convex app configuration |
-| `users.ts` | User queries/mutations: getOrCreate, me, stats, API key management, deleteAllData, deleteAccount (deletes Convex first, then WorkOS to prevent partial deletion) |
+| `users.ts` | User queries/mutations: getOrCreate, me (returns enabledAgents), stats, API key management, updateEnabledAgents, deleteAllData, deleteAccount (deletes Convex first, then WorkOS to prevent partial deletion) |
 | `sessions.ts` | Session CRUD: list, get, getPublic, setVisibility, remove, getMarkdown, upsert (with 10s dedup window, idempotency), batchUpsert, listExternalIds, exportAllDataCSV |
 | `messages.ts` | Message mutations: upsert (with 5s dedup, combined session patch, parallel parts ops), batchUpsert for bulk sync |
 | `analytics.ts` | Analytics queries with source filtering: dailyStats, modelStats, projectStats, providerStats, summaryStats, sessionsWithDetails, sourceStats, publicPlatformStats (no auth, for homepage leaderboard). Includes inferProvider helper for model-based provider detection |
@@ -53,12 +53,12 @@ React frontend application.
 
 | File | Description |
 |------|-------------|
-| `Login.tsx` | Public homepage with WorkOS AuthKit integration. Shows "Go to Dashboard" button when logged in (no auto-redirect), "Sign in" when logged out. Includes privacy messaging, getting started section with plugin links (mobile-visible), tan mode theme support with footer (theme switcher, Terms/Privacy links), footer icons (GitHub, Discord, Support, Discussions), updated mockup with view tabs and OC/CC source badges (desktop-only), feature list with Sync/Search/Private/Tag/Export/Delete keywords and eval datasets tagline, Watch the demo link, trust message with cloud/local deployment info, real-time Platform Stats leaderboard (Top Models, Top CLI) above Open Source footer link |
-| `Dashboard.tsx` | Main dashboard with source filter dropdown (hidden on small mobile), source badges (CC/OC), eval toggle button, Context link with search icon, setup banner for new users (loading-aware, no flash on refresh), mobile-optimized header/filters/session rows, URL param support for deep linking from Context search (?session=id), Cmd/Ctrl+K shortcut to open Context search, and four views: Overview (responsive stat grids), Sessions (mobile-friendly list with stacked layout), Evals (eval-ready sessions with export modal), Analytics (responsive breakdowns with collapsible filters) |
-| `Settings.tsx` | Tabbed settings: API Access (keys, endpoints), Profile (collapsible section for privacy, account info, Legal section with Terms/Privacy links, Danger Zone with delete data/account options). Back link navigates to /dashboard |
+| `Login.tsx` | Public homepage with WorkOS AuthKit integration. Shows "Go to Dashboard" button when logged in (no auto-redirect), "Sign in" when logged out. Includes privacy messaging, "Syncs with" section showing supported CLI tools (OpenCode, Claude Code, Droid, Cursor with coming soon badge), getting started section with plugin links (mobile-visible), tan mode theme support with footer (theme switcher, Terms/Privacy links), footer icons (GitHub, Discord, Support, Discussions), updated mockup with view tabs and OC/CC source badges (desktop-only), feature list with Sync/Search/Private/Tag/Export/Delete keywords and eval datasets tagline, Watch the demo link, trust message with cloud/local deployment info, real-time Platform Stats leaderboard (Top Models, Top CLI) above Open Source footer link |
+| `Dashboard.tsx` | Main dashboard with custom themed source filter dropdown (filters by user's enabled agents from Settings, dark/tan mode support, click-outside close, escape key close), source badges (CC/OC), eval toggle button, Context link with search icon, setup banner for new users (loading-aware, no flash on refresh), mobile-optimized header/filters/session rows, URL param support for deep linking from Context search (?session=id), Cmd/Ctrl+K shortcut to open Context search, and four views: Overview (responsive stat grids), Sessions (mobile-friendly list with stacked layout), Evals (eval-ready sessions with export modal), Analytics (responsive breakdowns with collapsible filters) |
+| `Settings.tsx` | Tabbed settings: API Access (two-column layout with Plugin Setup and AI Coding Agents sections, keys, endpoints), Profile (collapsible section for privacy, account info, Legal section with Terms/Privacy links, Danger Zone with delete data/account options). AI Coding Agents section lets users enable/disable CLI tools for the source filter dropdown (OpenCode, Claude Code, Factory Droid, Cursor, Codex CLI, Continue, Amp, Aider, Goose, Mentat, Cline, Kilo Code). Back link navigates to /dashboard |
 | `Docs.tsx` | Comprehensive documentation page with instant typeahead search (Cmd/Ctrl+K shortcut), left sidebar navigation (hidden scrollbar), right table of contents, anchor tags, copy/view as markdown buttons, mobile responsive, works with both dark/tan themes. Search indexes all sections with keywords for quick navigation to any topic via hash anchor. Covers use hosted version (with features, plugin install, login/sync), self-hosting requirements with cloud and 100% local deployment options, quick start, dashboard features, OpenCode plugin, Claude Code plugin, API reference, search types, authentication, hosting, fork guide, troubleshooting, and FAQ. Links to opencode.ai and claude.ai in hero and plugin sections. |
 | `PublicSession.tsx` | Public session viewer for shared sessions (/s/:slug) with dark/tan theme toggle, content normalization for multi-plugin support, textContent fallback for empty parts |
-| `Evals.tsx` | Evals page with eval-ready session list, stats, export modal (DeepEval JSON, OpenAI JSONL, Filesystem formats) |
+| `Evals.tsx` | Evals page with eval-ready session list, stats, export modal (DeepEval JSON, OpenAI JSONL, Filesystem formats), source filter respects user's enabled agents from Settings |
 | `Context.tsx` | Dedicated context search page (/context) with paginated full-text search for sessions and messages, slide-over panel for viewing session details without navigation, message highlighting for search results, no OpenAI key required |
 
 ### src/components/
@@ -94,6 +94,7 @@ Documentation files.
 | `PRD-FEATURES.md` | Product requirements: Eval Suite, Marketplace, Context Library, Analytics |
 | `SYNC-FOR-EVALS-PRD.md` | Detailed PRD for eval export system with DeepEval/OpenAI Evals support |
 | `workosfix.md` | WorkOS troubleshooting notes |
+| `add-package-to-home-prompt.md` | Reusable prompt template for adding CLI/npm packages to homepage Getting Started section |
 | `WORKOS-AUTH.md` | WorkOS AuthKit integration architecture and security model |
 | `NETLIFY-WORKOS-DEPLOYMENT.md` | Deployment guide for Netlify, WorkOS, and Convex integration |
 
@@ -109,6 +110,10 @@ Static assets.
 | `convex.svg` | Convex logo |
 | `workos.svg` | WorkOS logo |
 | `netlify-logo.svg` | Netlify logo |
+| `opencode-dark.svg` | OpenCode logo for dark theme |
+| `opencode-light.svg` | OpenCode logo for light theme |
+| `claude.svg` | Claude Code logo (uses currentColor) |
+| `factory-droid.svg` | Factory Droid logo (uses currentColor) |
 | `llms.txt` | AI assistant documentation file with project overview, features, API reference, and setup instructions |
 
 ## .cursor/rules/

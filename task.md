@@ -8,7 +8,46 @@ OpenSync supports two AI coding tools: **OpenCode** and **Claude Code**.
 
 - [ ] (add next task here)
 
+## Recently Completed (Ecosystem)
+
+- [x] Added droid-sync community plugin to README Ecosystem table
+  - Links to GitHub repo (yemyat/droid-sync-plugin) and npm package (droid-sync)
+  - Marked as community-built plugin for Factory Droid sessions
+
+## Recently Completed (AI Coding Agents Settings)
+
+- [x] AI Coding Agents section in Settings page
+  - Two-column layout: Plugin Setup (left) + AI Coding Agents (right)
+  - Added enabledAgents field to users table in schema
+  - Added updateEnabledAgents mutation
+  - Updated me query to return enabledAgents
+  - Checkbox list with 12 CLI tools grouped by status (supported, community, planned, TBD)
+  - Status badges with theme-aware colors
+  - OpenCode and Claude Code enabled by default for backward compatibility
+- [x] Source filter dropdown respects user's enabled agents
+  - Dashboard SourceDropdown filters options based on enabledAgents
+  - Evals page source filter respects enabledAgents
+  - Defaults to ["opencode", "claude-code"] for existing users without preference
+
+## Recently Completed (Syncs With Section)
+
+- [x] Added "Syncs with" section on Login page above Getting Started
+  - OpenCode icon with dark/light theme switching
+  - Claude Code icon (inline SVG with currentColor)
+  - Factory Droid icon (inline SVG with currentColor)
+  - Cursor icon with "coming soon" badge on top for alignment
+  - All icons adapt to dark/tan theme
+
+## Recently Completed (Prompt Templates)
+
+- [x] Added reusable prompt template for adding CLI/npm packages to homepage Getting Started section
+  - Template file: docs/add-package-to-home-prompt.md
+  - Supports badge types: npm (default), community, cli
+  - Pattern follows existing plugin links structure in Login.tsx
+
 ## Completed
+
+- [x] Custom themed source filter dropdown in Dashboard (replaces native select with dark/tan mode support)
 
 - [x] Fix production logout on page refresh (devMode=true, simplified ProtectedRoute with Convex auth)
 - [x] Settings back link navigates to /dashboard instead of homepage

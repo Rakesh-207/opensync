@@ -51,7 +51,26 @@ type ViewMode = "overview" | "sessions" | "evals" | "analytics";
 type SortField = "updatedAt" | "createdAt" | "totalTokens" | "cost" | "durationMs";
 type SortOrder = "asc" | "desc";
 // Source filter type for filtering by plugin source
-type SourceFilter = "all" | "opencode" | "claude-code";
+type SourceFilter = "all" | string;
+
+// AI Coding Agents configuration - must match Settings.tsx
+const AI_AGENTS_MAP: Record<string, string> = {
+  "opencode": "OpenCode",
+  "claude-code": "Claude Code",
+  "factory-droid": "Factory Droid",
+  "cursor": "Cursor",
+  "codex-cli": "Codex CLI",
+  "continue": "Continue",
+  "amp": "Amp",
+  "aider": "Aider",
+  "goose": "Goose",
+  "mentat": "Mentat",
+  "cline": "Cline",
+  "kilo-code": "Kilo Code",
+};
+
+// Default enabled agents for backward compatibility
+const DEFAULT_ENABLED_AGENTS = ["opencode", "claude-code"];
 
 export function DashboardPage() {
   const { user, signOut } = useAuth();
@@ -75,6 +94,10 @@ export function DashboardPage() {
   useEffect(() => {
     getOrCreate();
   }, [getOrCreate]);
+
+  // Get current user for enabled agents
+  const currentUser = useQuery(api.users.me);
+  const enabledAgents = currentUser?.enabledAgents ?? DEFAULT_ENABLED_AGENTS;
 
   // Read session ID from URL param (e.g., from Context search "Open in Dashboard")
   useEffect(() => {
@@ -168,6 +191,7 @@ export function DashboardPage() {
             value={sourceFilter}
             onChange={setSourceFilter}
             theme={theme}
+            enabledAgents={enabledAgents}
           />
         </div>
 
@@ -2487,40 +2511,106 @@ function FilterDropdown({
   );
 }
 
-// Source dropdown for filtering by plugin source (OpenCode vs Claude Code)
+// Source dropdown for filtering by plugin source (filters by user's enabled agents)
 function SourceDropdown({
   value,
   onChange,
   theme,
+  enabledAgents,
 }: {
   value: SourceFilter;
   onChange: (v: SourceFilter) => void;
   theme: "dark" | "tan";
+  enabledAgents: string[];
 }) {
-  const t = getThemeClasses(theme);
+  const isDark = theme === "dark";
+  const [isOpen, setIsOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+  
+  // Build options from enabled agents only
   const options: Array<{ value: SourceFilter; label: string }> = [
     { value: "all", label: "All Sources" },
-    { value: "opencode", label: "OpenCode" },
-    { value: "claude-code", label: "Claude Code" },
+    ...enabledAgents.map((agentId) => ({
+      value: agentId,
+      label: AI_AGENTS_MAP[agentId] || agentId,
+    })),
   ];
 
+  // Reset to "all" if current value is no longer in enabled agents
+  const safeValue = value === "all" || enabledAgents.includes(value) ? value : "all";
+  const selectedOption = options.find((opt) => opt.value === safeValue) || options[0];
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  // Close on escape key
+  useEffect(() => {
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setIsOpen(false);
+    };
+    document.addEventListener("keydown", handleEscape);
+    return () => document.removeEventListener("keydown", handleEscape);
+  }, []);
+
   return (
-    <div className={cn("relative flex items-center rounded-md p-0.5 border", t.bgToggle, t.border)}>
-      <select
-        value={value}
-        onChange={(e) => onChange(e.target.value as SourceFilter)}
+    <div ref={dropdownRef} className="relative">
+      {/* Trigger button */}
+      <button
+        type="button"
+        onClick={() => setIsOpen(!isOpen)}
         className={cn(
-          "px-3 py-1 text-xs rounded appearance-none cursor-pointer focus:outline-none transition-colors bg-transparent",
-          t.textSecondary
+          "flex items-center gap-2 px-3 py-1.5 text-xs rounded-md border transition-colors",
+          isDark
+            ? "bg-zinc-900/50 border-zinc-800 hover:border-zinc-700 text-zinc-300"
+            : "bg-[#f5f3f0] border-[#e6e4e1] hover:border-[#c9c5bf] text-[#6b6b6b]"
         )}
       >
-        {options.map((opt) => (
-          <option key={opt.value} value={opt.value} className={t.bgToggle}>
-            {opt.label}
-          </option>
-        ))}
-      </select>
-      <ChevronDown className={cn("absolute right-2 top-1/2 -translate-y-1/2 h-3 w-3 pointer-events-none", t.iconMuted)} />
+        <span>{selectedOption.label}</span>
+        <ChevronDown className={cn("h-3 w-3 transition-transform", isOpen && "rotate-180")} />
+      </button>
+
+      {/* Dropdown menu */}
+      {isOpen && (
+        <div
+          className={cn(
+            "absolute top-full left-0 mt-1 min-w-[140px] rounded-md border shadow-lg z-50 py-1 animate-fade-in",
+            isDark
+              ? "bg-[#161616] border-zinc-800"
+              : "bg-[#faf8f5] border-[#e6e4e1]"
+          )}
+        >
+          {options.map((opt) => (
+            <button
+              key={opt.value}
+              type="button"
+              onClick={() => {
+                onChange(opt.value);
+                setIsOpen(false);
+              }}
+              className={cn(
+                "w-full px-3 py-1.5 text-left text-xs transition-colors",
+                opt.value === safeValue
+                  ? isDark
+                    ? "bg-zinc-800 text-zinc-100"
+                    : "bg-[#ebe9e6] text-[#1a1a1a]"
+                  : isDark
+                    ? "text-zinc-400 hover:bg-zinc-800/50 hover:text-zinc-200"
+                    : "text-[#6b6b6b] hover:bg-[#ebe9e6]/50 hover:text-[#1a1a1a]"
+              )}
+            >
+              {opt.label}
+            </button>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

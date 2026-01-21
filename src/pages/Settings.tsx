@@ -28,10 +28,56 @@ import {
   ChevronRight,
   FileText,
   Shield,
+  Bot,
 } from "lucide-react";
 
 // Convex URL from environment
 const CONVEX_URL = import.meta.env.VITE_CONVEX_URL as string;
+
+// AI Coding Agents configuration
+type AgentStatus = "supported" | "community" | "planned" | "tbd";
+
+interface AIAgent {
+  id: string;
+  name: string;
+  status: AgentStatus;
+  defaultEnabled: boolean;
+  description?: string;
+  url?: string;
+}
+
+const AI_AGENTS: AIAgent[] = [
+  { id: "opencode", name: "OpenCode", status: "supported", defaultEnabled: true, url: "https://github.com/opencode-ai/opencode" },
+  { id: "claude-code", name: "Claude Code", status: "supported", defaultEnabled: true, url: "https://docs.anthropic.com/en/docs/claude-code" },
+  { id: "factory-droid", name: "Factory Droid", status: "community", defaultEnabled: false, url: "https://github.com/waynesutton/opensync/pull/3" },
+  { id: "cursor", name: "Cursor", status: "planned", defaultEnabled: false },
+  { id: "codex-cli", name: "Codex CLI", status: "planned", defaultEnabled: false },
+  { id: "continue", name: "Continue", status: "planned", defaultEnabled: false },
+  { id: "amp", name: "Amp", status: "planned", defaultEnabled: false },
+  { id: "aider", name: "Aider", status: "tbd", defaultEnabled: false },
+  { id: "goose", name: "Goose", status: "tbd", defaultEnabled: false },
+  { id: "mentat", name: "Mentat", status: "tbd", defaultEnabled: false },
+  { id: "cline", name: "Cline", status: "tbd", defaultEnabled: false },
+  { id: "kilo-code", name: "Kilo Code", status: "tbd", defaultEnabled: false },
+];
+
+// Default enabled agents for backward compatibility
+const DEFAULT_ENABLED_AGENTS = AI_AGENTS.filter(a => a.defaultEnabled).map(a => a.id);
+
+// Status badge styling
+const getStatusBadgeClasses = (status: AgentStatus, theme: "dark" | "tan") => {
+  const isDark = theme === "dark";
+  switch (status) {
+    case "supported":
+      return isDark ? "bg-emerald-500/15 text-emerald-400" : "bg-emerald-500/15 text-emerald-600";
+    case "community":
+      return isDark ? "bg-blue-500/15 text-blue-400" : "bg-blue-500/15 text-blue-600";
+    case "planned":
+      return isDark ? "bg-amber-500/15 text-amber-400" : "bg-amber-500/15 text-amber-600";
+    case "tbd":
+      return isDark ? "bg-zinc-500/15 text-zinc-400" : "bg-zinc-500/15 text-zinc-500";
+  }
+};
 
 export function SettingsPage() {
   const { user, signOut } = useAuth();
@@ -67,6 +113,19 @@ export function SettingsPage() {
   const revokeApiKey = useMutation(api.users.revokeApiKey);
   const deleteAllData = useMutation(api.users.deleteAllData);
   const deleteAccount = useAction(api.users.deleteAccount);
+  const updateEnabledAgents = useMutation(api.users.updateEnabledAgents);
+
+  // Compute enabled agents with defaults for backward compatibility
+  const enabledAgents = currentUser?.enabledAgents ?? DEFAULT_ENABLED_AGENTS;
+
+  // Handler to toggle an agent's enabled state
+  const handleToggleAgent = async (agentId: string) => {
+    const isCurrentlyEnabled = enabledAgents.includes(agentId);
+    const newEnabledAgents = isCurrentlyEnabled
+      ? enabledAgents.filter((id) => id !== agentId)
+      : [...enabledAgents, agentId];
+    await updateEnabledAgents({ enabledAgents: newEnabledAgents });
+  };
 
   const handleGenerateKey = async () => {
     const key = await generateApiKey();
@@ -183,122 +242,215 @@ export function SettingsPage() {
         {/* API Tab */}
         {activeTab === "api" && (
           <div className="space-y-8">
-            {/* Plugin Setup */}
-            <section>
-              <h2 className={cn("text-sm font-normal mb-4 flex items-center gap-2", t.textMuted)}>
-                <Terminal className="h-4 w-4" />
-                Plugin Setup
-              </h2>
-              <div className={cn("p-4 rounded-lg border", t.bgCard, t.border)}>
-                {/* Plugin links */}
-                <div className={cn("text-sm mb-4 space-y-2", t.textSubtle)}>
-                  <p>
-                    <a
-                      href="https://www.npmjs.com/package/opencode-sync-plugin"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className={cn("inline-flex items-center gap-1 font-medium", theme === "dark" ? "text-blue-400 hover:text-blue-300" : "text-[#EB5601] hover:text-[#d14a01]")}
-                    >
-                      opencode-sync-plugin
-                      <ExternalLink className="h-3 w-3" />
-                    </a>
-                    {" "}<span className={t.textDim}>Sync your OpenCode sessions</span>
-                    {" "}
-                    <a
-                      href="https://github.com/waynesutton/opencode-sync-plugin"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className={cn("text-xs", t.textDim, "hover:underline")}
-                    >
-                      (GitHub)
-                    </a>
-                  </p>
-                  <p>
-                    <a
-                      href="https://www.npmjs.com/package/claude-code-sync"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className={cn("inline-flex items-center gap-1 font-medium", theme === "dark" ? "text-blue-400 hover:text-blue-300" : "text-[#EB5601] hover:text-[#d14a01]")}
-                    >
-                      claude-code-sync
-                      <ExternalLink className="h-3 w-3" />
-                    </a>
-                    {" "}<span className={t.textDim}>Sync your Claude Code sessions</span>
-                    {" "}
-                    <a
-                      href="https://github.com/waynesutton/claude-code-sync"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className={cn("text-xs", t.textDim, "hover:underline")}
-                    >
-                      (GitHub)
-                    </a>
-                  </p>
-                </div>
-
-                {/* Convex URL */}
-                <div className="space-y-4">
-                  <div>
-                    <label className={cn("text-xs mb-1.5 block", t.textSubtle)}>Convex URL</label>
-                    <div className="flex items-center gap-2">
-                      <code className={cn("flex-1 text-sm font-mono px-3 py-2 rounded border overflow-x-auto", t.bgCode, t.border, t.textSecondary)}>
-                        {CONVEX_URL || "Not configured"}
-                      </code>
-                      <button
-                        onClick={handleCopyUrl}
-                        className={cn("p-2 rounded border transition-colors", t.border, t.textSubtle, t.bgHover)}
-                        title="Copy"
+            {/* Two-column grid: Plugin Setup + AI Coding Agents */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* Plugin Setup */}
+              <section>
+                <h2 className={cn("text-sm font-normal mb-4 flex items-center gap-2", t.textMuted)}>
+                  <Terminal className="h-4 w-4" />
+                  Plugin Setup
+                </h2>
+                <div className={cn("p-4 rounded-lg border h-full", t.bgCard, t.border)}>
+                  {/* Plugin links */}
+                  <div className={cn("text-sm mb-4 space-y-2", t.textSubtle)}>
+                    <p>
+                      <a
+                        href="https://www.npmjs.com/package/opencode-sync-plugin"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className={cn("inline-flex items-center gap-1 font-medium", theme === "dark" ? "text-blue-400 hover:text-blue-300" : "text-[#EB5601] hover:text-[#d14a01]")}
                       >
-                        {copiedUrl ? <Check className="h-4 w-4 text-emerald-500" /> : <Copy className="h-4 w-4" />}
-                      </button>
+                        opencode-sync-plugin
+                        <ExternalLink className="h-3 w-3" />
+                      </a>
+                      {" "}<span className={t.textDim}>Sync your OpenCode sessions</span>
+                      {" "}
+                      <a
+                        href="https://github.com/waynesutton/opencode-sync-plugin"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className={cn("text-xs", t.textDim, "hover:underline")}
+                      >
+                        (GitHub)
+                      </a>
+                    </p>
+                    <p>
+                      <a
+                        href="https://www.npmjs.com/package/claude-code-sync"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className={cn("inline-flex items-center gap-1 font-medium", theme === "dark" ? "text-blue-400 hover:text-blue-300" : "text-[#EB5601] hover:text-[#d14a01]")}
+                      >
+                        claude-code-sync
+                        <ExternalLink className="h-3 w-3" />
+                      </a>
+                      {" "}<span className={t.textDim}>Sync your Claude Code sessions</span>
+                      {" "}
+                      <a
+                        href="https://github.com/waynesutton/claude-code-sync"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className={cn("text-xs", t.textDim, "hover:underline")}
+                      >
+                        (GitHub)
+                      </a>
+                    </p>
+                  </div>
+
+                  {/* Convex URL */}
+                  <div className="space-y-4">
+                    <div>
+                      <label className={cn("text-xs mb-1.5 block", t.textSubtle)}>Convex URL</label>
+                      <div className="flex items-center gap-2">
+                        <code className={cn("flex-1 text-sm font-mono px-3 py-2 rounded border overflow-x-auto", t.bgCode, t.border, t.textSecondary)}>
+                          {CONVEX_URL || "Not configured"}
+                        </code>
+                        <button
+                          onClick={handleCopyUrl}
+                          className={cn("p-2 rounded border transition-colors", t.border, t.textSubtle, t.bgHover)}
+                          title="Copy"
+                        >
+                          {copiedUrl ? <Check className="h-4 w-4 text-emerald-500" /> : <Copy className="h-4 w-4" />}
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* API Key Status */}
+                    <div>
+                      <label className={cn("text-xs mb-1.5 block", t.textSubtle)}>API Key</label>
+                      {currentUser?.hasApiKey || newApiKey ? (
+                        <div className="flex items-center gap-2">
+                          <code className={cn("flex-1 text-sm font-mono px-3 py-2 rounded border", t.bgCode, t.border, t.textSecondary)}>
+                            {newApiKey && showApiKey ? newApiKey : "osk_••••••••••••••••"}
+                          </code>
+                          {newApiKey && (
+                            <>
+                              <button
+                                onClick={() => setShowApiKey(!showApiKey)}
+                                className={cn("p-2 rounded border transition-colors", t.border, t.textSubtle, t.bgHover)}
+                              >
+                                {showApiKey ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                              </button>
+                              <button
+                                onClick={handleCopyKey}
+                                className={cn("p-2 rounded border transition-colors", t.border, t.textSubtle, t.bgHover)}
+                              >
+                                {copiedKey ? <Check className="h-4 w-4 text-emerald-500" /> : <Copy className="h-4 w-4" />}
+                              </button>
+                            </>
+                          )}
+                        </div>
+                      ) : (
+                        <p className={cn("text-sm", t.textDim)}>No API key generated</p>
+                      )}
                     </div>
                   </div>
 
-                  {/* API Key Status */}
-                  <div>
-                    <label className={cn("text-xs mb-1.5 block", t.textSubtle)}>API Key</label>
-                    {currentUser?.hasApiKey || newApiKey ? (
-                      <div className="flex items-center gap-2">
-                        <code className={cn("flex-1 text-sm font-mono px-3 py-2 rounded border", t.bgCode, t.border, t.textSecondary)}>
-                          {newApiKey && showApiKey ? newApiKey : "osk_••••••••••••••••"}
-                        </code>
-                        {newApiKey && (
-                          <>
-                            <button
-                              onClick={() => setShowApiKey(!showApiKey)}
-                              className={cn("p-2 rounded border transition-colors", t.border, t.textSubtle, t.bgHover)}
-                            >
-                              {showApiKey ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                            </button>
-                            <button
-                              onClick={handleCopyKey}
-                              className={cn("p-2 rounded border transition-colors", t.border, t.textSubtle, t.bgHover)}
-                            >
-                              {copiedKey ? <Check className="h-4 w-4 text-emerald-500" /> : <Copy className="h-4 w-4" />}
-                            </button>
-                          </>
-                        )}
-                      </div>
-                    ) : (
-                      <p className={cn("text-sm", t.textDim)}>No API key generated</p>
-                    )}
+                  {/* Quick Setup */}
+                  <div className={cn("mt-4 p-3 rounded border", t.bgSecondary, t.borderLight)}>
+                    <p className={cn("text-xs font-normal mb-2", t.textMuted)}>Quick setup</p>
+                    <div className={cn("space-y-1 text-xs font-mono", t.textSubtle)}>
+                      <p className={t.textDim}># For OpenCode</p>
+                      <p>npm install -g opencode-sync-plugin</p>
+                      <p>opencode-sync login</p>
+                      <p className={cn("mt-2", t.textDim)}># For Claude Code</p>
+                      <p>npm install -g claude-code-sync</p>
+                      <p>claude-code-sync login</p>
+                      <p className={cn("mt-2", t.textDim)}># For Factory Droid</p>
+                      <p>npm install -g droid-sync</p>
+                      <p>droid-sync login</p>
+                    </div>
                   </div>
                 </div>
+              </section>
 
-                {/* Quick Setup */}
-                <div className={cn("mt-4 p-3 rounded border", t.bgSecondary, t.borderLight)}>
-                  <p className={cn("text-xs font-normal mb-2", t.textMuted)}>Quick setup</p>
-                  <div className={cn("space-y-1 text-xs font-mono", t.textSubtle)}>
-                    <p className={t.textDim}># For OpenCode</p>
-                    <p>npm install -g opencode-sync-plugin</p>
-                    <p>opencode-sync login</p>
-                    <p className={cn("mt-2", t.textDim)}># For Claude Code</p>
-                    <p>npm install -g claude-code-sync</p>
-                    <p>claude-code-sync login</p>
+              {/* AI Coding Agents */}
+              <section>
+                <h2 className={cn("text-sm font-normal mb-4 flex items-center gap-2", t.textMuted)}>
+                  <Bot className="h-4 w-4" />
+                  AI Coding Agents
+                </h2>
+                <div className={cn("p-4 rounded-lg border h-full", t.bgCard, t.border)}>
+                  <p className={cn("text-sm mb-4", t.textSubtle)}>
+                    Select which CLI tools appear in the Source filter dropdown on the Dashboard.
+                  </p>
+                  
+                  {/* Agent checkboxes grouped by status */}
+                  <div className="space-y-4">
+                    {/* Supported agents */}
+                    <div>
+                      <p className={cn("text-xs font-medium mb-2 uppercase tracking-wide", t.textDim)}>Supported</p>
+                      <div className="space-y-2">
+                        {AI_AGENTS.filter(a => a.status === "supported").map((agent) => (
+                          <AgentCheckboxRow
+                            key={agent.id}
+                            agent={agent}
+                            isEnabled={enabledAgents.includes(agent.id)}
+                            onToggle={() => handleToggleAgent(agent.id)}
+                            theme={theme}
+                          />
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Community agents */}
+                    <div>
+                      <p className={cn("text-xs font-medium mb-2 uppercase tracking-wide", t.textDim)}>Community</p>
+                      <div className="space-y-2">
+                        {AI_AGENTS.filter(a => a.status === "community").map((agent) => (
+                          <AgentCheckboxRow
+                            key={agent.id}
+                            agent={agent}
+                            isEnabled={enabledAgents.includes(agent.id)}
+                            onToggle={() => handleToggleAgent(agent.id)}
+                            theme={theme}
+                          />
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Planned agents */}
+                    <div>
+                      <p className={cn("text-xs font-medium mb-2 uppercase tracking-wide", t.textDim)}>Planned</p>
+                      <div className="space-y-2">
+                        {AI_AGENTS.filter(a => a.status === "planned").map((agent) => (
+                          <AgentCheckboxRow
+                            key={agent.id}
+                            agent={agent}
+                            isEnabled={enabledAgents.includes(agent.id)}
+                            onToggle={() => handleToggleAgent(agent.id)}
+                            theme={theme}
+                          />
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* TBD agents */}
+                    <div>
+                      <p className={cn("text-xs font-medium mb-2 uppercase tracking-wide", t.textDim)}>TBD</p>
+                      <div className="space-y-2">
+                        {AI_AGENTS.filter(a => a.status === "tbd").map((agent) => (
+                          <AgentCheckboxRow
+                            key={agent.id}
+                            agent={agent}
+                            isEnabled={enabledAgents.includes(agent.id)}
+                            onToggle={() => handleToggleAgent(agent.id)}
+                            theme={theme}
+                          />
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Info note */}
+                  <div className={cn("mt-4 p-3 rounded border", t.bgSecondary, t.borderLight)}>
+                    <p className={cn("text-xs", t.textDim)}>
+                      Enabling an agent adds it to the Source filter. If no data exists for that tool, it will show empty results when selected.
+                    </p>
                   </div>
                 </div>
-              </div>
-            </section>
+              </section>
+            </div>
 
             {/* API Key Management */}
             <section>
@@ -629,5 +781,68 @@ function EndpointRow({ method, path, theme = "dark" }: { method: string; path: s
       </span>
       <span className={t.textSubtle}>{path}</span>
     </div>
+  );
+}
+
+// Agent checkbox row component for AI Coding Agents section
+function AgentCheckboxRow({
+  agent,
+  isEnabled,
+  onToggle,
+  theme,
+}: {
+  agent: AIAgent;
+  isEnabled: boolean;
+  onToggle: () => void;
+  theme: "dark" | "tan";
+}) {
+  const t = getThemeClasses(theme);
+  const statusClasses = getStatusBadgeClasses(agent.status, theme);
+
+  return (
+    <label
+      className={cn(
+        "flex items-center gap-3 p-2 rounded cursor-pointer transition-colors",
+        t.bgHover
+      )}
+    >
+      {/* Checkbox */}
+      <input
+        type="checkbox"
+        checked={isEnabled}
+        onChange={onToggle}
+        className={cn(
+          "h-4 w-4 rounded border transition-colors cursor-pointer",
+          theme === "dark"
+            ? "bg-zinc-800 border-zinc-600 accent-blue-500"
+            : "bg-white border-[#d1ccc4] accent-[#EB5601]"
+        )}
+      />
+      
+      {/* Agent name */}
+      <span className={cn("flex-1 text-sm", t.textSecondary)}>
+        {agent.url ? (
+          <a
+            href={agent.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={(e) => e.stopPropagation()}
+            className={cn(
+              "hover:underline",
+              theme === "dark" ? "text-blue-400 hover:text-blue-300" : "text-[#EB5601] hover:text-[#d14a01]"
+            )}
+          >
+            {agent.name}
+          </a>
+        ) : (
+          agent.name
+        )}
+      </span>
+
+      {/* Status badge */}
+      <span className={cn("px-1.5 py-0.5 rounded text-[10px] font-medium uppercase tracking-wide", statusClasses)}>
+        {agent.status}
+      </span>
+    </label>
   );
 }

@@ -13,6 +13,8 @@ export default defineSchema({
     // API key for external access
     apiKey: v.optional(v.string()),
     apiKeyCreatedAt: v.optional(v.number()),
+    // Enabled AI coding agents for source filter dropdown
+    enabledAgents: v.optional(v.array(v.string())),
     createdAt: v.number(),
     updatedAt: v.number(),
   })

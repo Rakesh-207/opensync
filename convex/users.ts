@@ -13,6 +13,7 @@ export const me = query({
       name: v.optional(v.string()),
       avatarUrl: v.optional(v.string()),
       hasApiKey: v.boolean(),
+      enabledAgents: v.optional(v.array(v.string())),
       createdAt: v.number(),
     }),
     v.null()
@@ -34,6 +35,7 @@ export const me = query({
       name: user.name,
       avatarUrl: user.avatarUrl,
       hasApiKey: !!user.apiKey,
+      enabledAgents: user.enabledAgents,
       createdAt: user.createdAt,
     };
   },
@@ -124,6 +126,33 @@ export const revokeApiKey = mutation({
     });
 
     return true;
+  },
+});
+
+// Update enabled AI coding agents for source filter dropdown
+export const updateEnabledAgents = mutation({
+  args: {
+    enabledAgents: v.array(v.string()),
+  },
+  returns: v.null(),
+  handler: async (ctx, { enabledAgents }) => {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) throw new Error("Not authenticated");
+
+    const user = await ctx.db
+      .query("users")
+      .withIndex("by_workos_id", (q) => q.eq("workosId", identity.subject))
+      .first();
+
+    if (!user) throw new Error("User not found");
+
+    // Patch directly for idempotency
+    await ctx.db.patch(user._id, {
+      enabledAgents,
+      updatedAt: Date.now(),
+    });
+
+    return null;
   },
 });
 
