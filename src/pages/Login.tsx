@@ -148,13 +148,20 @@ function PlatformLeaderboard({ isDark }: { isDark: boolean }) {
         <div className={`rounded-md border p-3 ${
           isDark ? "border-zinc-800 bg-[#0E0E0E]" : "border-[#e6e4e1] bg-[#faf8f5]"
         }`}>
-          <div className="flex items-center gap-1.5 mb-2">
-            <Trophy className={`h-3 w-3 ${isDark ? "text-amber-500" : "text-amber-600"}`} />
-            <p className={`text-[10px] uppercase tracking-wider ${
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center gap-1.5">
+              <Trophy className={`h-3 w-3 ${isDark ? "text-amber-500" : "text-amber-600"}`} />
+              <p className={`text-[10px] uppercase tracking-wider ${
+                isDark ? "text-zinc-600" : "text-[#8b7355]"
+              }`}>
+                Top Models
+              </p>
+            </div>
+            <span className={`text-[10px] uppercase tracking-wider ${
               isDark ? "text-zinc-600" : "text-[#8b7355]"
             }`}>
-              Top Models
-            </p>
+              tokens
+            </span>
           </div>
           <div className="space-y-1.5">
             {topModels.length === 0 ? (
