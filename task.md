@@ -40,6 +40,11 @@ OpenSync supports two AI coding tools: **OpenCode** and **Claude Code**.
   - Moved all decorative shapes (triangle, square, diamond, circle) to right side
   - Content left-aligned with max-w-85% to prevent overlap
   - Increased headline sizes to 7xl
+- [x] Replaced cost with sessions count on all 10 wrapped templates
+  - Cost is sensitive/personal info people may not want to share
+  - Sessions count is more shareable and shows engagement
+  - Added sessionCount to wrappedStatsValidator (optional for backward compatibility)
+  - Updated get24HourStats and getWrappedStats to return recentSessions.length
 
 ## Recently Completed (Daily Sync Wrapped - v1.2.0)
 

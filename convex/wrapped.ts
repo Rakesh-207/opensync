@@ -52,12 +52,13 @@ function inferProvider(model?: string): string {
   return "unknown";
 }
 
-// Validator for wrapped stats
+// Validator for wrapped stats (sessionCount optional for backward compatibility)
 export const wrappedStatsValidator = v.object({
   totalTokens: v.number(),
   promptTokens: v.number(),
   completionTokens: v.number(),
   totalMessages: v.number(),
+  sessionCount: v.optional(v.number()),
   cost: v.number(),
   topModels: v.array(
     v.object({
@@ -191,6 +192,7 @@ export const get24HourStats = internalQuery({
       promptTokens,
       completionTokens,
       totalMessages,
+      sessionCount: recentSessions.length,
       cost,
       topModels,
       topProviders,
@@ -260,6 +262,7 @@ export const getWrappedStats = query({
       promptTokens,
       completionTokens,
       totalMessages,
+      sessionCount: recentSessions.length,
       cost,
       topModels,
       topProviders,

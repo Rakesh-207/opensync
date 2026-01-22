@@ -6,6 +6,7 @@ interface WrappedStats {
   promptTokens: number;
   completionTokens: number;
   totalMessages: number;
+  sessionCount?: number;
   cost: number;
   topModels: { model: string; tokens: number }[];
   topProviders: { provider: string; tokens: number }[];
@@ -22,9 +23,6 @@ const formatNumber = (n: number): string => {
   if (n >= 1000) return `${(n / 1000).toFixed(1)}K`;
   return n.toLocaleString();
 };
-
-// Helper to format cost
-const formatCost = (c: number): string => `$${c.toFixed(2)}`;
 
 // Template 0: Minimal Dark (Sole DXB style)
 export function Template0({ stats, date }: TemplateProps) {
@@ -52,8 +50,8 @@ export function Template0({ stats, date }: TemplateProps) {
             <p className="text-xl tracking-widest opacity-60 mt-1">MESSAGES</p>
           </div>
           <div>
-            <p className="text-4xl font-bold">{formatCost(stats.cost)}</p>
-            <p className="text-xl tracking-widest opacity-60 mt-1">SPENT</p>
+            <p className="text-4xl font-bold">{stats.sessionCount ?? 0}</p>
+            <p className="text-xl tracking-widest opacity-60 mt-1">SESSIONS</p>
           </div>
         </div>
       </div>
@@ -96,8 +94,8 @@ export function Template1({ stats, date }: TemplateProps) {
               <p className="text-xl opacity-70 mt-1">Messages</p>
             </div>
             <div>
-              <p className="text-5xl font-semibold">{formatCost(stats.cost)}</p>
-              <p className="text-xl opacity-70 mt-1">Cost</p>
+              <p className="text-5xl font-semibold">{stats.sessionCount ?? 0}</p>
+              <p className="text-xl opacity-70 mt-1">Sessions</p>
             </div>
           </div>
         </div>
@@ -150,8 +148,8 @@ export function Template2({ stats, date }: TemplateProps) {
             <span className="font-bold">{stats.totalMessages}</span>
           </div>
           <div className="flex justify-between border-b-2 border-[#ccc] pb-2">
-            <span>Cost</span>
-            <span className="font-bold">{formatCost(stats.cost)}</span>
+            <span>Sessions</span>
+            <span className="font-bold">{stats.sessionCount ?? 0}</span>
           </div>
           <div className="flex justify-between">
             <span>Top Model</span>
@@ -204,8 +202,8 @@ export function Template3({ stats, date }: TemplateProps) {
           <div className="text-lg text-gray-500 mt-2">MESSAGES</div>
         </div>
         <div className="w-56 h-32 bg-white rounded-3xl flex flex-col items-center justify-center">
-          <div className="text-4xl font-bold text-black">{formatCost(stats.cost)}</div>
-          <div className="text-lg text-gray-500 mt-2">COST</div>
+          <div className="text-5xl font-bold text-black">{stats.sessionCount ?? 0}</div>
+          <div className="text-lg text-gray-500 mt-2">SESSIONS</div>
         </div>
         <div className="w-56 h-32 bg-white rounded-3xl flex flex-col items-center justify-center px-4">
           <div className="text-2xl font-bold text-black text-center truncate w-full">
@@ -256,8 +254,8 @@ export function Template4({ stats, date }: TemplateProps) {
             <p className="text-gray-400 text-2xl mt-1">Messages</p>
           </div>
           <div>
-            <span className="text-blue-400 text-5xl font-light">{formatCost(stats.cost)}</span>
-            <p className="text-gray-400 text-2xl mt-1">Cost</p>
+            <span className="text-blue-400 text-5xl font-light">{stats.sessionCount ?? 0}</span>
+            <p className="text-gray-400 text-2xl mt-1">Sessions</p>
           </div>
           {stats.topModels[0] && (
             <div>
@@ -306,7 +304,7 @@ export function Template5({ stats, date }: TemplateProps) {
           </div>
           <div className="text-3xl tracking-wider mt-4 font-bold">TOKENS</div>
           <div className="text-2xl tracking-wider mt-6 opacity-70">
-            {stats.totalMessages} MSG | {formatCost(stats.cost)}
+            {stats.totalMessages} MSG | {stats.sessionCount ?? 0} SESSIONS
           </div>
         </div>
 
@@ -352,8 +350,8 @@ export function Template6({ stats, date }: TemplateProps) {
             <span className="text-white font-bold text-6xl">{stats.totalMessages}</span>
           </div>
           <div className="flex items-center justify-between">
-            <span className="text-white/90 text-3xl font-medium">Cost</span>
-            <span className="text-white font-bold text-6xl">{formatCost(stats.cost)}</span>
+            <span className="text-white/90 text-3xl font-medium">Sessions</span>
+            <span className="text-white font-bold text-6xl">{stats.sessionCount ?? 0}</span>
           </div>
         </div>
 
@@ -396,8 +394,8 @@ export function Template7({ stats, date }: TemplateProps) {
             <span className="text-4xl font-bold">{stats.totalMessages}</span>
           </div>
           <div>
-            <span className="opacity-40 text-xl">COST </span>
-            <span className="text-4xl font-bold">{formatCost(stats.cost)}</span>
+            <span className="opacity-40 text-xl">SESSIONS </span>
+            <span className="text-4xl font-bold">{stats.sessionCount ?? 0}</span>
           </div>
           <div>
             <span className="opacity-40 text-xl">MODEL </span>
@@ -450,7 +448,7 @@ export function Template8({ stats, date }: TemplateProps) {
 
           <div className="space-y-4 text-2xl">
             <div>{stats.totalMessages} messages</div>
-            <div>{formatCost(stats.cost)} cost</div>
+            <div>{stats.sessionCount ?? 0} sessions</div>
             <div className="truncate">{stats.topModels[0]?.model || "N/A"}</div>
           </div>
         </div>
@@ -498,8 +496,8 @@ export function Template9({ stats, date }: TemplateProps) {
             <div className="text-2xl text-gray-500 mt-2">Messages</div>
           </div>
           <div>
-            <div className="text-5xl font-bold">{formatCost(stats.cost)}</div>
-            <div className="text-2xl text-gray-500 mt-2">Cost</div>
+            <div className="text-5xl font-bold">{stats.sessionCount ?? 0}</div>
+            <div className="text-2xl text-gray-500 mt-2">Sessions</div>
           </div>
           <div>
             <div className="text-3xl font-bold truncate">

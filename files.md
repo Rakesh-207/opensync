@@ -75,7 +75,7 @@ React frontend application.
 | `ConfirmModal.tsx` | Custom confirmation modal with theme support, replaces browser confirm() dialogs |
 | `LegalModal.tsx` | Dark mode modal for displaying Terms of Service and Privacy Policy with markdown rendering, ESC/X to close |
 | `WrappedView.tsx` | Daily Wrapped component with countdown timer, download PNG (675x1200 9:16 portrait) using hidden off-screen export container for clean captures, rotate design button |
-| `WrappedTemplates.tsx` | 10 CSS template designs for wrapped (9:16 portrait 675x1200px) with large readable fonts, decorative shapes positioned to avoid text overlap |
+| `WrappedTemplates.tsx` | 10 CSS template designs for wrapped (9:16 portrait 675x1200px) showing tokens, messages, sessions (not cost), with large readable fonts |
 
 ### src/lib/
 

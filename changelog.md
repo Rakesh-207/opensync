@@ -19,6 +19,8 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Fixed Template 5 (vinyl): removed center hole, enlarged circle to 420px, increased all text sizes
 - Fixed Template 6 (orange gradient): enlarged all text to 6xl for stats, 3xl for labels
 - Fixed Template 9 (color shapes): moved decorative shapes to right side to prevent text overlap
+- Replaced cost with sessions count on all 10 wrapped templates (more shareable, less sensitive data)
+- Added sessionCount field to wrapped stats (optional for backward compatibility)
 
 ## [1.2.0] - 2026-01-22
 
