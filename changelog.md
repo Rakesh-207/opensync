@@ -13,6 +13,13 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Removed Twitter/X and LinkedIn share buttons from Wrapped view (download only)
 - Updated wrapped templates with vertical portrait layouts and large typography
 
+### Fixed
+
+- Fixed wrapped image export capturing extra space by using hidden off-screen container (no CSS transforms)
+- Fixed Template 5 (vinyl): removed center hole, enlarged circle to 420px, increased all text sizes
+- Fixed Template 6 (orange gradient): enlarged all text to 6xl for stats, 3xl for labels
+- Fixed Template 9 (color shapes): moved decorative shapes to right side to prevent text overlap
+
 ## [1.2.0] - 2026-01-22
 
 ### Added

@@ -40,7 +40,7 @@ function formatCountdown(hours: number, minutes: number, seconds: number): strin
 export function WrappedView() {
   const { theme } = useTheme();
   const t = getThemeClasses(theme);
-  const wrappedRef = useRef<HTMLDivElement>(null);
+  const exportRef = useRef<HTMLDivElement>(null);
   const [isExporting, setIsExporting] = useState(false);
   const [testDesignIndex, setTestDesignIndex] = useState<number | null>(null);
 
@@ -66,19 +66,21 @@ export function WrappedView() {
 
   // Download as PNG using html2canvas (9:16 portrait: 675x1200)
   const handleDownload = useCallback(async () => {
-    if (!wrappedRef.current) return;
+    if (!exportRef.current) return;
 
     setIsExporting(true);
     try {
       // Dynamically import html2canvas
       const html2canvas = (await import("html2canvas")).default;
 
-      const canvas = await html2canvas(wrappedRef.current, {
-        scale: 1, // 1:1 scale since we render at exact size
+      // Capture the hidden export container (no transforms)
+      const canvas = await html2canvas(exportRef.current, {
+        scale: 1,
         useCORS: true,
         backgroundColor: null,
         width: 675,
         height: 1200,
+        logging: false,
       });
 
       // Create download link
@@ -124,6 +126,25 @@ export function WrappedView() {
 
   return (
     <div className="flex flex-col lg:flex-row gap-8 p-4 lg:p-8">
+      {/* Hidden export container - positioned off-screen, no transforms */}
+      <div
+        ref={exportRef}
+        style={{
+          position: "absolute",
+          left: "-9999px",
+          top: "-9999px",
+          width: "675px",
+          height: "1200px",
+          overflow: "hidden",
+        }}
+      >
+        <WrappedTemplate
+          designIndex={designIndex}
+          stats={stats}
+          date={date}
+        />
+      </div>
+
       {/* Wrapped Preview */}
       <div className="flex-1 flex flex-col items-center">
         {/* Countdown */}
@@ -152,16 +173,18 @@ export function WrappedView() {
           ) : (
             /* CSS Fallback Template - 675x1200 rendered at 0.5 scale for preview */
             <div
-              className="w-full h-full"
-              style={{ width: "675px", height: "1200px", transform: "scale(0.5)", transformOrigin: "top left" }}
+              style={{
+                width: "675px",
+                height: "1200px",
+                transform: "scale(0.5)",
+                transformOrigin: "top left",
+              }}
             >
-              <div ref={wrappedRef} style={{ width: "675px", height: "1200px" }}>
-                <WrappedTemplate
-                  designIndex={designIndex}
-                  stats={stats}
-                  date={date}
-                />
-              </div>
+              <WrappedTemplate
+                designIndex={designIndex}
+                stats={stats}
+                date={date}
+              />
             </div>
           )}
 

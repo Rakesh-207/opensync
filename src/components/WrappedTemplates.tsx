@@ -278,109 +278,96 @@ export function Template4({ stats, date }: TemplateProps) {
   );
 }
 
-// Template 5: Vinyl Record (Yeezus style)
+// Template 5: Vinyl Record (Yeezus style) - Big circle, no center hole
 export function Template5({ stats, date }: TemplateProps) {
   return (
     <div className="w-full h-full bg-[#1a1a1a] p-8 flex flex-col items-center justify-center relative">
       {/* Top corners */}
-      <div className="absolute top-6 left-6 text-[#f5f0e8] text-lg">
+      <div className="absolute top-8 left-8 text-[#f5f0e8] text-2xl">
         <span className="opacity-60">BY</span>
         <br />
-        <span className="font-bold">OPENSYNC</span>
+        <span className="font-bold text-3xl">OPENSYNC</span>
       </div>
-      <div className="absolute top-6 right-6 text-[#f5f0e8] text-xl font-bold tracking-wider">
+      <div className="absolute top-8 right-8 text-[#f5f0e8] text-3xl font-bold tracking-wider">
         WRAPPED
       </div>
 
-      {/* Vinyl circle */}
-      <div className="w-72 h-72 rounded-full bg-[#f5f0e8] flex items-center justify-center relative mb-10">
-        {/* Center hole */}
-        <div className="w-16 h-16 rounded-full bg-[#1a1a1a]" />
-
-        {/* Curved text - top */}
-        <div className="absolute top-6 text-lg tracking-wider text-[#1a1a1a]">
+      {/* Big circle with all content inside - no center hole */}
+      <div className="w-[420px] h-[420px] rounded-full bg-[#f5f0e8] flex items-center justify-center relative mt-16">
+        {/* Date at top */}
+        <div className="absolute top-10 text-2xl tracking-wider text-[#1a1a1a] font-bold">
           {date.toUpperCase()}
         </div>
 
-        {/* Stats in center */}
-        <div className="absolute inset-0 flex items-center justify-center">
-          <div className="text-[#1a1a1a] text-center">
-            <div className="text-5xl font-black tracking-tighter" style={{ fontFamily: "serif" }}>
-              {formatNumber(stats.totalTokens)}
-            </div>
-            <div className="text-lg tracking-wider mt-2">TOKENS</div>
+        {/* Main stats in center */}
+        <div className="text-[#1a1a1a] text-center">
+          <div className="text-8xl font-black tracking-tighter" style={{ fontFamily: "serif" }}>
+            {formatNumber(stats.totalTokens)}
+          </div>
+          <div className="text-3xl tracking-wider mt-4 font-bold">TOKENS</div>
+          <div className="text-2xl tracking-wider mt-6 opacity-70">
+            {stats.totalMessages} MSG | {formatCost(stats.cost)}
           </div>
         </div>
 
-        {/* Bottom text */}
-        <div className="absolute bottom-6 text-base tracking-wider text-[#1a1a1a]">
-          {stats.totalMessages} MSG | {formatCost(stats.cost)}
+        {/* Model at bottom */}
+        <div className="absolute bottom-10 text-xl tracking-wider text-[#1a1a1a] truncate max-w-[80%] px-4 font-medium">
+          {stats.topModels[0]?.model || "Your activity"}
         </div>
       </div>
 
-      {/* Bottom content */}
-      <div className="text-[#f5f0e8] text-center">
-        <h1 className="text-5xl font-bold mb-2">DAILY</h1>
-        <h1 className="text-5xl font-bold mb-2">SYNC</h1>
-        <h1 className="text-5xl font-bold">WRAPPED</h1>
-        <p className="text-xl mt-6 opacity-60 truncate max-w-full px-4">
-          {stats.topModels[0]?.model || "Your coding activity"}
-        </p>
-      </div>
-
-      {/* Bottom decoration */}
-      <div className="absolute bottom-6 right-6">
-        <div className="w-10 h-10 rounded-full border-2 border-[#f5f0e8] flex items-center justify-center">
-          <div className="w-3 h-3 rounded-full bg-[#f5f0e8]" />
-        </div>
+      {/* Bottom text */}
+      <div className="text-[#f5f0e8] text-center mt-12">
+        <h1 className="text-6xl font-bold tracking-wide">DAILY SYNC</h1>
+        <h1 className="text-6xl font-bold tracking-wide">WRAPPED</h1>
       </div>
     </div>
   );
 }
 
-// Template 6: Orange Gradient (Take Control style)
+// Template 6: Orange Gradient (Take Control style) - HUGE readable text
 export function Template6({ stats, date }: TemplateProps) {
   return (
-    <div className="w-full h-full bg-gradient-to-br from-orange-400 via-orange-500 to-red-500 p-10 flex flex-col relative overflow-hidden">
+    <div className="w-full h-full bg-gradient-to-br from-orange-400 via-orange-500 to-red-500 p-12 flex flex-col relative overflow-hidden">
       {/* Decorative shapes */}
       <div className="absolute -right-24 top-1/4 w-64 h-64 bg-white/10 rounded-full blur-3xl" />
       <div className="absolute -left-16 bottom-1/3 w-48 h-48 bg-white/10 rounded-full blur-2xl" />
 
       {/* Content */}
       <div className="relative z-10 flex-1 flex flex-col">
-        <h1 className="text-white text-5xl font-bold leading-tight mb-8">
+        <h1 className="text-white text-6xl font-bold leading-tight mb-10">
           Your daily
           <br />
           sync wrapped.
         </h1>
 
-        {/* Stats card */}
-        <div className="bg-white/20 backdrop-blur-sm rounded-3xl p-8 space-y-6">
+        {/* Stats card with HUGE numbers */}
+        <div className="bg-white/20 backdrop-blur-sm rounded-3xl p-10 space-y-8">
           <div className="flex items-center justify-between">
-            <span className="text-white/80 text-2xl">Total Tokens</span>
-            <span className="text-white font-bold text-4xl">{formatNumber(stats.totalTokens)}</span>
+            <span className="text-white/90 text-3xl font-medium">Tokens</span>
+            <span className="text-white font-bold text-6xl">{formatNumber(stats.totalTokens)}</span>
           </div>
           <div className="flex items-center justify-between">
-            <span className="text-white/80 text-2xl">Messages</span>
-            <span className="text-white font-bold text-4xl">{stats.totalMessages}</span>
+            <span className="text-white/90 text-3xl font-medium">Messages</span>
+            <span className="text-white font-bold text-6xl">{stats.totalMessages}</span>
           </div>
           <div className="flex items-center justify-between">
-            <span className="text-white/80 text-2xl">Cost</span>
-            <span className="text-white font-bold text-4xl">{formatCost(stats.cost)}</span>
+            <span className="text-white/90 text-3xl font-medium">Cost</span>
+            <span className="text-white font-bold text-6xl">{formatCost(stats.cost)}</span>
           </div>
         </div>
 
-        {/* Pill button style element */}
-        <div className="mt-8 bg-white/90 rounded-full py-4 px-8 flex items-center justify-between">
-          <span className="text-gray-800 text-xl font-medium truncate max-w-[80%]">
+        {/* Model pill */}
+        <div className="mt-10 bg-white/90 rounded-full py-5 px-10 flex items-center justify-between">
+          <span className="text-gray-800 text-2xl font-semibold truncate max-w-[80%]">
             {stats.topModels[0]?.model || "No activity"}
           </span>
-          <span className="text-gray-400 text-2xl">+</span>
+          <span className="text-gray-400 text-3xl">+</span>
         </div>
       </div>
 
       {/* Bottom */}
-      <div className="relative z-10 mt-auto pt-8 text-white/70 text-xl">
+      <div className="relative z-10 mt-auto pt-8 text-white/80 text-2xl font-medium">
         {date} | OpenSync
       </div>
     </div>
@@ -474,45 +461,45 @@ export function Template8({ stats, date }: TemplateProps) {
   );
 }
 
-// Template 9: Color Shapes (Khroma style)
+// Template 9: Color Shapes (Khroma style) - shapes positioned to not cover text
 export function Template9({ stats, date }: TemplateProps) {
   return (
-    <div className="w-full h-full bg-[#0f0f0f] p-10 flex flex-col relative overflow-hidden">
-      {/* Colorful shape accents */}
-      <div className="absolute top-20 left-8">
-        <div className="w-0 h-0 border-l-[25px] border-l-transparent border-r-[25px] border-r-transparent border-b-[43px] border-b-yellow-300" />
+    <div className="w-full h-full bg-[#0f0f0f] p-12 flex flex-col relative overflow-hidden">
+      {/* Colorful shape accents - positioned in corners away from text */}
+      <div className="absolute top-16 right-12">
+        <div className="w-0 h-0 border-l-[30px] border-l-transparent border-r-[30px] border-r-transparent border-b-[52px] border-b-yellow-300" />
       </div>
-      <div className="absolute top-40 right-8 w-12 h-12 bg-pink-400 rounded-sm" />
-      <div className="absolute bottom-64 left-12 w-14 h-14 bg-blue-500 rotate-45" />
-      <div className="absolute bottom-32 right-10">
-        <div className="w-12 h-12 rounded-full bg-gradient-to-br from-pink-400 to-red-400" />
+      <div className="absolute top-48 right-16 w-14 h-14 bg-pink-400 rounded-sm" />
+      <div className="absolute bottom-48 right-12 w-16 h-16 bg-blue-500 rotate-45" />
+      <div className="absolute bottom-16 right-16">
+        <div className="w-14 h-14 rounded-full bg-gradient-to-br from-pink-400 to-red-400" />
       </div>
 
       {/* Header */}
-      <div className="text-white text-2xl font-bold tracking-wider">opensync</div>
+      <div className="text-white text-3xl font-bold tracking-wider">opensync</div>
 
-      {/* Main content */}
-      <div className="flex-1 flex flex-col justify-center">
-        <h1 className="text-white text-6xl font-serif mb-2">Daily Sync</h1>
-        <h2 className="text-blue-400 text-6xl font-serif italic mb-8">wrapped.</h2>
+      {/* Main content - left aligned to avoid shapes on right */}
+      <div className="flex-1 flex flex-col justify-center max-w-[85%]">
+        <h1 className="text-white text-7xl font-serif mb-2">Daily Sync</h1>
+        <h2 className="text-blue-400 text-7xl font-serif italic mb-10">wrapped.</h2>
 
-        <p className="text-gray-400 text-xl mb-10">
+        <p className="text-gray-400 text-2xl mb-12">
           Your coding activity for {date}
         </p>
 
-        {/* Stats grid */}
-        <div className="space-y-6 text-white">
+        {/* Stats - large and readable */}
+        <div className="space-y-8 text-white">
           <div>
-            <div className="text-5xl font-bold">{formatNumber(stats.totalTokens)}</div>
-            <div className="text-xl text-gray-500 mt-1">Total Tokens</div>
+            <div className="text-7xl font-bold">{formatNumber(stats.totalTokens)}</div>
+            <div className="text-2xl text-gray-500 mt-2">Total Tokens</div>
           </div>
           <div>
-            <div className="text-5xl font-bold">{stats.totalMessages}</div>
-            <div className="text-xl text-gray-500 mt-1">Messages</div>
+            <div className="text-6xl font-bold">{stats.totalMessages}</div>
+            <div className="text-2xl text-gray-500 mt-2">Messages</div>
           </div>
           <div>
-            <div className="text-4xl font-bold">{formatCost(stats.cost)}</div>
-            <div className="text-xl text-gray-500 mt-1">Cost</div>
+            <div className="text-5xl font-bold">{formatCost(stats.cost)}</div>
+            <div className="text-2xl text-gray-500 mt-2">Cost</div>
           </div>
           <div>
             <div className="text-3xl font-bold truncate">
@@ -524,7 +511,7 @@ export function Template9({ stats, date }: TemplateProps) {
       </div>
 
       {/* Bottom providers */}
-      <div className="text-gray-600 text-lg">
+      <div className="text-gray-500 text-xl">
         {stats.topProviders.map((p) => p.provider).join(" | ")}
       </div>
     </div>

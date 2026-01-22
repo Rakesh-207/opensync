@@ -23,6 +23,23 @@ OpenSync supports two AI coding tools: **OpenCode** and **Claude Code**.
   - Removed Twitter/X share button
   - Removed LinkedIn share button
   - Kept download PNG and rotate design buttons only
+- [x] Fixed wrapped image export capturing extra gray space
+  - Created hidden off-screen export container (position: absolute, left: -9999px)
+  - html2canvas now captures clean container without CSS transforms
+  - Preview uses scaled version, export uses full-size hidden container
+- [x] Fixed Template 5 (vinyl record style)
+  - Removed center hole/dot completely
+  - Enlarged circle from 288px to 420px diameter
+  - Increased all text sizes (8xl tokens, 3xl labels)
+  - All content now fits inside the circle
+- [x] Fixed Template 6 (orange gradient)
+  - Enlarged stat numbers from 4xl to 6xl
+  - Enlarged labels from 2xl to 3xl
+  - Increased padding and spacing throughout
+- [x] Fixed Template 9 (color shapes)
+  - Moved all decorative shapes (triangle, square, diamond, circle) to right side
+  - Content left-aligned with max-w-85% to prevent overlap
+  - Increased headline sizes to 7xl
 
 ## Recently Completed (Daily Sync Wrapped - v1.2.0)
 
