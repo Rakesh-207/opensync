@@ -2896,9 +2896,10 @@ npx convex dev`}
                   />
                   <p className={cn("mt-2 text-sm", t.textMuted)}>
                     Browse all synced sessions with sorting and filtering.
-                    Source badges show OC (OpenCode), CC (Claude Code), or CX (Codex CLI) origin.
-                    List view shows token count, cost, and duration. Timeline
-                    view displays sessions chronologically grouped by project.
+                    Source badges show OC (OpenCode), CC (Claude Code), or CX
+                    (Codex CLI) origin. List view shows token count, cost, and
+                    duration. Timeline view displays sessions chronologically
+                    grouped by project.
                   </p>
                 </div>
 
@@ -3287,7 +3288,7 @@ npx convex dev`}
                   </div>
                   <div className="mt-3 flex gap-2">
                     <a
-                      href="https://github.com/waynesutton/codex-sync"
+                      href="https://github.com/waynesutton/codex-sync-plugin"
                       target="_blank"
                       rel="noopener noreferrer"
                       className={cn(

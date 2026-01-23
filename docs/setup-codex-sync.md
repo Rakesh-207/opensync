@@ -37,7 +37,7 @@ codex-sync/
 ### 1. Clone and Install
 
 ```bash
-git clone https://github.com/waynesutton/codex-sync.git
+git clone https://github.com/waynesutton/codex-sync-plugin-plugin.git
 cd codex-sync
 npm install
 ```
@@ -125,8 +125,8 @@ export default defineSchema({
     source: v.union(
       v.literal("opencode"),
       v.literal("claude-code"),
-      v.literal("codex-cli"),  // Add this line
-      v.literal("api")
+      v.literal("codex-cli"), // Add this line
+      v.literal("api"),
     ),
     // ... rest of schema
   }),
@@ -142,7 +142,7 @@ const sourceOptions = [
   { value: "all", label: "All Sources" },
   { value: "opencode", label: "OpenCode" },
   { value: "claude-code", label: "Claude Code" },
-  { value: "codex-cli", label: "Codex CLI" },  // Add this line
+  { value: "codex-cli", label: "Codex CLI" }, // Add this line
 ];
 ```
 
@@ -151,8 +151,8 @@ const sourceOptions = [
 Add codex-sync to OpenSync README ecosystem table:
 
 ```markdown
-| Package | Description | Install |
-|---------|-------------|---------|
+| Package                                                | Description             | Install                     |
+| ------------------------------------------------------ | ----------------------- | --------------------------- |
 | [codex-sync](https://www.npmjs.com/package/codex-sync) | Sync Codex CLI sessions | `npm install -g codex-sync` |
 ```
 
@@ -202,12 +202,12 @@ notify = ["codex-sync", "hook", "agent-turn-complete"]
 
 The plugin calls these OpenSync endpoints:
 
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| `/health` | GET | Connection test |
-| `/sync/session` | POST | Create/update session |
-| `/sync/message` | POST | Add message to session |
-| `/sync/batch` | POST | Batch sync |
+| Endpoint        | Method | Description            |
+| --------------- | ------ | ---------------------- |
+| `/health`       | GET    | Connection test        |
+| `/sync/session` | POST   | Create/update session  |
+| `/sync/message` | POST   | Add message to session |
+| `/sync/batch`   | POST   | Batch sync             |
 
 ### Session Payload
 
@@ -339,5 +339,5 @@ The CLI needs the shebang for npm bin:
 
 ## Support
 
-- GitHub Issues: [codex-sync/issues](https://github.com/waynesutton/codex-sync/issues)
+- GitHub Issues: [codex-sync/issues](https://github.com/waynesutton/codex-sync-plugin-plugin/issues)
 - OpenSync Docs: [opensync.dev/docs](https://opensync.dev/docs)

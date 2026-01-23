@@ -569,7 +569,7 @@ export function SettingsPage() {
                         Sync your Codex CLI sessions
                       </span>{" "}
                       <a
-                        href="https://github.com/waynesutton/codex-sync"
+                        href="https://github.com/waynesutton/codex-sync-plugin"
                         target="_blank"
                         rel="noopener noreferrer"
                         className={cn("text-xs", t.textDim, "hover:underline")}
@@ -736,7 +736,9 @@ export function SettingsPage() {
                 <Key className="h-4 w-4" />
                 API Key Management
               </h2>
-              <div className={cn("mt-4 p-4 rounded-lg border", t.bgCard, t.border)}>
+              <div
+                className={cn("mt-4 p-4 rounded-lg border", t.bgCard, t.border)}
+              >
                 <p className={cn("text-sm mb-2", t.textSubtle)}>
                   Generate an API key to access your sessions from external
                   applications.
