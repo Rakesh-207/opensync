@@ -659,11 +659,20 @@ export const publicMessageGrowth = query({
   handler: async (ctx) => {
     const messages = await ctx.db.query("messages").collect();
 
-    // Group messages by date
+    // Group messages by date (skip invalid dates)
     const byDate: Record<string, number> = {};
     for (const msg of messages) {
-      const date = new Date(msg.createdAt).toISOString().split("T")[0];
-      byDate[date] = (byDate[date] || 0) + 1;
+      // Safety check: skip messages with invalid createdAt
+      if (!msg.createdAt || typeof msg.createdAt !== "number") continue;
+      try {
+        const dateObj = new Date(msg.createdAt);
+        if (isNaN(dateObj.getTime())) continue; // Skip invalid dates
+        const date = dateObj.toISOString().split("T")[0];
+        byDate[date] = (byDate[date] || 0) + 1;
+      } catch {
+        // Skip any messages that cause date parsing errors
+        continue;
+      }
     }
 
     // Sort dates and calculate cumulative

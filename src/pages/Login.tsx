@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "../lib/auth";
 import { useAuth as useAuthKit } from "@workos-inc/authkit-react";
 import {
@@ -474,6 +474,15 @@ function AnimatedGrowthChart({ isDark }: { isDark: boolean }) {
     setAnimationKey(prev => prev + 1);
   };
 
+  // Fallback timeout to stop animation (onEnded may not fire in all browsers)
+  useEffect(() => {
+    if (!isPlaying) return;
+    const timeout = setTimeout(() => {
+      setIsPlaying(false);
+    }, 3500); // 3s animation + 500ms buffer
+    return () => clearTimeout(timeout);
+  }, [isPlaying, animationKey]);
+
   // Build SVG path for the chart
   const chartHeight = 120;
   const chartWidth = 100;
@@ -501,10 +510,15 @@ function AnimatedGrowthChart({ isDark }: { isDark: boolean }) {
       ` L ${padding.left + (dataPoints.length === 1 ? innerWidth : innerWidth)} ${padding.top + innerHeight} Z`
     : '';
 
-  // Format date for display
+  // Format date for display (with safety check)
   const formatDateLabel = (dateStr: string) => {
-    const date = new Date(dateStr);
-    return date.toLocaleDateString('en', { month: 'short', day: 'numeric' });
+    try {
+      const date = new Date(dateStr);
+      if (isNaN(date.getTime())) return dateStr; // Return raw string if invalid
+      return date.toLocaleDateString('en', { month: 'short', day: 'numeric' });
+    } catch {
+      return dateStr;
+    }
   };
 
   // Get x-axis labels (first, middle, last)
