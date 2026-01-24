@@ -635,21 +635,21 @@ export const summaryStats = query({
 });
 
 // TEMP: Public message count for milestone display on stats page
-// Uses async iteration to avoid collecting all documents into memory
+// Sums messageCount from sessions table (fewer docs, avoids 16MB read limit)
 export const publicMessageCount = query({
   args: {},
   returns: v.number(),
   handler: async (ctx) => {
-    let count = 0;
-    for await (const _ of ctx.db.query("messages")) {
-      count += 1;
+    let total = 0;
+    for await (const session of ctx.db.query("sessions")) {
+      total += session.messageCount || 0;
     }
-    return count;
+    return total;
   },
 });
 
 // TEMP: Public message growth data for animated chart on stats page
-// Uses pagination to avoid exceeding read limits
+// Groups by session createdAt date and sums messageCount (avoids 16MB read limit)
 export const publicMessageGrowth = query({
   args: {},
   returns: v.array(
@@ -660,17 +660,16 @@ export const publicMessageGrowth = query({
     })
   ),
   handler: async (ctx) => {
-    // Group messages by date using async iteration (no collect)
+    // Group sessions by date and sum their messageCount
     const byDate: Record<string, number> = {};
 
-    for await (const msg of ctx.db.query("messages")) {
-      // Safety check: skip messages with invalid createdAt
-      if (!msg.createdAt || typeof msg.createdAt !== "number") continue;
+    for await (const session of ctx.db.query("sessions")) {
+      if (!session.createdAt || typeof session.createdAt !== "number") continue;
       try {
-        const dateObj = new Date(msg.createdAt);
+        const dateObj = new Date(session.createdAt);
         if (isNaN(dateObj.getTime())) continue;
         const date = dateObj.toISOString().split("T")[0];
-        byDate[date] = (byDate[date] || 0) + 1;
+        byDate[date] = (byDate[date] || 0) + (session.messageCount || 0);
       } catch {
         continue;
       }
