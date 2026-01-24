@@ -8,6 +8,15 @@ OpenSync supports two AI coding tools: **OpenCode** and **Claude Code**.
 
 - [ ] (add next task here)
 
+## Recently Completed (Stats Page Disabled)
+
+- [x] Commented out Stats page to reduce Convex reads
+  - Route /stats still exists but shows placeholder
+  - Original code preserved in block comment (700+ lines)
+  - No longer queries api.analytics.publicMessageCount or publicMessageGrowth
+  - Page not linked from anywhere (no navigation changes needed)
+- [x] Updated README tagline to include all supported tools (OpenCode, Claude Code, Codex, Factory Droid)
+
 ## Recently Completed (Mobile Scrolling Fixes)
 
 - [x] Fixed mobile scrolling issues across Dashboard

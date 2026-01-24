@@ -1,3 +1,67 @@
+// =============================================================================
+// STATS PAGE - COMMENTED OUT (preserved for future use)
+// This page previously displayed platform stats with message counts and growth charts.
+// Commented out to reduce Convex reads. Route still exists at /stats but is not linked.
+// To re-enable: uncomment the code below and remove the placeholder component.
+// =============================================================================
+
+import { Link } from "react-router-dom";
+import { useTheme } from "../lib/theme";
+import { ArrowLeft } from "lucide-react";
+
+// Placeholder component - no Convex reads
+export function StatsPage() {
+  const { theme } = useTheme();
+  const isDark = theme === "dark";
+
+  return (
+    <div
+      className={`min-h-screen ${
+        isDark ? "bg-[#0a0a0a] text-zinc-100" : "bg-[#f8f6f3] text-[#1a1a1a]"
+      }`}
+    >
+      <header
+        className={`border-b ${
+          isDark
+            ? "border-zinc-800 bg-[#0a0a0a]"
+            : "border-[#e6e4e1] bg-[#f8f6f3]"
+        }`}
+      >
+        <div className="max-w-4xl mx-auto px-4 py-4 flex items-center gap-4">
+          <Link
+            to="/"
+            className={`flex items-center gap-2 text-sm ${
+              isDark
+                ? "text-zinc-400 hover:text-zinc-200"
+                : "text-[#8b7355] hover:text-[#1a1a1a]"
+            }`}
+          >
+            <ArrowLeft className="h-4 w-4" />
+            Back
+          </Link>
+          <h1
+            className={`text-lg font-semibold ${
+              isDark ? "text-zinc-100" : "text-[#1a1a1a]"
+            }`}
+          >
+            Platform Stats
+          </h1>
+        </div>
+      </header>
+
+      <main className="max-w-4xl mx-auto px-4 py-16 text-center">
+        <p className={`text-sm ${isDark ? "text-zinc-500" : "text-[#8b7355]"}`}>
+          Stats page is currently disabled.
+        </p>
+      </main>
+    </div>
+  );
+}
+
+/* =============================================================================
+   ORIGINAL CODE - PRESERVED FOR FUTURE USE
+   =============================================================================
+
 import { useState, useEffect, Component, type ReactNode } from "react";
 import { useConvex } from "convex/react";
 import { api } from "../../convex/_generated/api";
@@ -183,7 +247,6 @@ function MessageMilestoneCounter({
         )}
       </h3>
 
-      {/* Count display */}
       <div>
         <span
           className={`text-3xl font-bold tabular-nums ${
@@ -545,7 +608,6 @@ function StatsPageContent({ theme, setTheme }: StatsPageContentProps) {
         isDark ? "bg-[#0a0a0a] text-zinc-100" : "bg-[#f8f6f3] text-[#1a1a1a]"
       }`}
     >
-      {/* Header */}
       <header
         className={`border-b ${
           isDark
@@ -576,7 +638,6 @@ function StatsPageContent({ theme, setTheme }: StatsPageContentProps) {
           </div>
 
           <div className="flex items-center gap-2">
-            {/* TEMP: Manual refresh button - remove later */}
             <button
               onClick={handleManualRefresh}
               className={`p-2 rounded-md ${
@@ -589,7 +650,6 @@ function StatsPageContent({ theme, setTheme }: StatsPageContentProps) {
               <RefreshCw className="h-4 w-4" />
             </button>
 
-            {/* Theme toggle */}
             <button
               onClick={() => setTheme(isDark ? "tan" : "dark")}
               className={`p-2 rounded-md ${
@@ -608,17 +668,12 @@ function StatsPageContent({ theme, setTheme }: StatsPageContentProps) {
         </div>
       </header>
 
-      {/* Main content */}
       <main className="max-w-4xl mx-auto px-4 py-8">
         <div className="grid gap-6 md:grid-cols-2">
-          {/* Message milestone counter */}
           <MessageMilestoneCounter isDark={isDark} refreshToken={refreshToken} />
-
-          {/* Growth chart */}
           <GrowthChart isDark={isDark} refreshToken={refreshToken} />
         </div>
 
-        {/* Info text */}
         <p
           className={`mt-8 text-center text-sm ${
             isDark ? "text-zinc-600" : "text-[#8b7355]"
@@ -641,3 +696,5 @@ export function StatsPage() {
     </StatsErrorBoundary>
   );
 }
+
+============================================================================= */

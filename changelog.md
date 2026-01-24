@@ -8,6 +8,11 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Changed
 
+- Updated README tagline to "Dashboards for OpenCode, Claude Code, Codex, Factory Droid and more"
+- Commented out Stats page (/stats) to reduce Convex database reads
+  - Route still exists but shows placeholder message
+  - Original code preserved in block comment for future re-enabling
+  - No longer reads from api.analytics.publicMessageCount or publicMessageGrowth
 - Simplified stats page UI
   - Removed Play/Reset animation controls from growth chart (static display only)
   - Removed milestone progress bar and "% to target" from message counter

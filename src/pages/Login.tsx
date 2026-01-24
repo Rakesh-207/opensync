@@ -396,7 +396,8 @@ export function LoginPage() {
               <h2
                 className={`mt-8 text-lg font-medium sm:text-xl ${isDark ? "text-zinc-200" : "text-[#1a1a1a]"}`}
               >
-                Dashboards for OpenCode and Claude coding sessions
+                Dashboards for OpenCode, Claude Code, Codex, Factory Droid, and
+                more.
               </h2>
               <p
                 className={`mt-3 text-sm sm:text-base leading-relaxed ${isDark ? "text-zinc-300" : "text-[#1a1a1a]"}`}

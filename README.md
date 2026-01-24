@@ -1,6 +1,6 @@
 # OpenSync
 
-Dashboards for OpenCode and Claude coding sessions.
+Dashboards for OpenCode, Claude Code, Codex, Factory Droid and more.
 
 Cloud-synced dashboards that track session activity, tool usage, and token spend. Build eval datasets across projects.
 
