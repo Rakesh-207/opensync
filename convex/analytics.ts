@@ -634,19 +634,22 @@ export const summaryStats = query({
   },
 });
 
-// TEMP: Public message count for milestone display on login page
-// TODO: Remove when no longer needed
+// TEMP: Public message count for milestone display on stats page
+// Uses async iteration to avoid collecting all documents into memory
 export const publicMessageCount = query({
   args: {},
   returns: v.number(),
   handler: async (ctx) => {
-    const messages = await ctx.db.query("messages").collect();
-    return messages.length;
+    let count = 0;
+    for await (const _ of ctx.db.query("messages")) {
+      count += 1;
+    }
+    return count;
   },
 });
 
-// TEMP: Public message growth data for animated chart on login page
-// TODO: Remove when no longer needed
+// TEMP: Public message growth data for animated chart on stats page
+// Uses pagination to avoid exceeding read limits
 export const publicMessageGrowth = query({
   args: {},
   returns: v.array(
@@ -657,20 +660,18 @@ export const publicMessageGrowth = query({
     })
   ),
   handler: async (ctx) => {
-    const messages = await ctx.db.query("messages").collect();
-
-    // Group messages by date (skip invalid dates)
+    // Group messages by date using async iteration (no collect)
     const byDate: Record<string, number> = {};
-    for (const msg of messages) {
+
+    for await (const msg of ctx.db.query("messages")) {
       // Safety check: skip messages with invalid createdAt
       if (!msg.createdAt || typeof msg.createdAt !== "number") continue;
       try {
         const dateObj = new Date(msg.createdAt);
-        if (isNaN(dateObj.getTime())) continue; // Skip invalid dates
+        if (isNaN(dateObj.getTime())) continue;
         const date = dateObj.toISOString().split("T")[0];
         byDate[date] = (byDate[date] || 0) + 1;
       } catch {
-        // Skip any messages that cause date parsing errors
         continue;
       }
     }

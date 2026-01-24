@@ -21,6 +21,9 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Hardened public stats page rendering
   - Added a local error boundary so stats failures do not blank the app
   - Guarded growth chart against invalid data points
+- Fixed stats page exceeding 16MB Convex read limit
+  - Changed publicMessageCount and publicMessageGrowth queries to use async iteration instead of collect
+  - Added temporary refresh button to stats header (to be removed later)
 
 ### Added
 

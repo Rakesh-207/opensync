@@ -11,6 +11,7 @@ import {
   Play,
   RotateCcw,
   ArrowLeft,
+  RefreshCw,
 } from "lucide-react";
 
 // Helper to format large numbers
@@ -661,7 +662,14 @@ type StatsPageContentProps = {
 
 function StatsPageContent({ theme, setTheme }: StatsPageContentProps) {
   const isDark = theme === "dark";
-  const refreshToken = useDailyRefreshAt9amPT();
+  const dailyRefreshToken = useDailyRefreshAt9amPT();
+  // TEMP: Manual refresh button - remove later
+  const [manualRefresh, setManualRefresh] = useState(0);
+  const refreshToken = dailyRefreshToken + manualRefresh;
+
+  const handleManualRefresh = () => {
+    setManualRefresh((prev) => prev + 1);
+  };
 
   return (
     <div
@@ -699,21 +707,36 @@ function StatsPageContent({ theme, setTheme }: StatsPageContentProps) {
             </h1>
           </div>
 
-          {/* Theme toggle */}
-          <button
-            onClick={() => setTheme(isDark ? "tan" : "dark")}
-            className={`p-2 rounded-md ${
-              isDark
-                ? "text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800"
-                : "text-[#8b7355] hover:text-[#1a1a1a] hover:bg-[#e6e4e1]"
-            }`}
-          >
-            {isDark ? (
-              <Sun className="h-4 w-4" />
-            ) : (
-              <Moon className="h-4 w-4" />
-            )}
-          </button>
+          <div className="flex items-center gap-2">
+            {/* TEMP: Manual refresh button - remove later */}
+            <button
+              onClick={handleManualRefresh}
+              className={`p-2 rounded-md ${
+                isDark
+                  ? "text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800"
+                  : "text-[#8b7355] hover:text-[#1a1a1a] hover:bg-[#e6e4e1]"
+              }`}
+              title="Refresh stats"
+            >
+              <RefreshCw className="h-4 w-4" />
+            </button>
+
+            {/* Theme toggle */}
+            <button
+              onClick={() => setTheme(isDark ? "tan" : "dark")}
+              className={`p-2 rounded-md ${
+                isDark
+                  ? "text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800"
+                  : "text-[#8b7355] hover:text-[#1a1a1a] hover:bg-[#e6e4e1]"
+              }`}
+            >
+              {isDark ? (
+                <Sun className="h-4 w-4" />
+              ) : (
+                <Moon className="h-4 w-4" />
+              )}
+            </button>
+          </div>
         </div>
       </header>
 
