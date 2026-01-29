@@ -1,0 +1,14 @@
+# Cloudflare Pages Configuration
+
+[build]
+command = "npm run build"
+cwd = "."
+watch_dir = "src"
+
+[build.environment_variables]
+NODE_VERSION = "18"
+
+# Environment variables (for reference only - must be set in Cloudflare Pages dashboard)
+# VITE_CONVEX_URL should be set in Cloudflare Pages dashboard
+# VITE_WORKOS_CLIENT_ID should be set in Cloudflare Pages dashboard  
+# VITE_REDIRECT_URI should be set in Cloudflare Pages dashboard
